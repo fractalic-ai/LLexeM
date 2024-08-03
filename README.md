@@ -114,11 +114,16 @@ Some text on level 1, 2
 ```
 
 As you can see, we are calling `macos-bash-assistant.md` with different tasks for an agent that generates shell commands (using LLM) to accomplish the task, runs them, summarizes results, and returns them to the main context. After all calls are executed, you can find created context .ctx files which store execution results of the context. Let's compare `main-test-0002-shell.md` and `main-test-0002-shell.ctx`:
+
 <img src='./Pasted image 20240804010908.png' width=100%>
+
 All results are by default pasted after the corresponding @run operation, except the first one, which has the syntax: `=> target-block`. This tells the interpreter to replace the block with `{id=target-block}`.
 
+
 Now, let's check how the last executed context for the `macos-bash-assistant.md` (file named `macos-bash-assistant.ctx`) looks like:
+
 <img src='./Pasted image 20240804011613.png' width=100%>
+
 A few things happen here:
 
 1. Our task is appended as a markdown block to the context of the agent.
