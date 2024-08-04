@@ -100,9 +100,6 @@ python python llexem.py tests/Basic_Tests/main-test-0002-shell.md
 
 Original `main-test-0002-shell.md` file:
 ```
-# Question Decomposition and Analysis Agent
-You have recieved input request in the previous block with {id = InputParameters}
-
 @run macos-bash-assistant.md("get current user location using curl to some geo ip service") => target-block
 
 # Here is block that would replace by output {id=target-block}
