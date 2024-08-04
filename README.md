@@ -95,7 +95,7 @@ python llexem.py input_file.md [--task_file task_file.md] [--api_key your_api_ke
 Let's run basic test:
 
 ``` bash
-python python llexem.py tests/Basic_Tests/main-test-0002-shell.md
+python llexem.py tests/Basic_Tests/main-test-0002-shell.md
 ```
 
 Original `main-test-0002-shell.md` file:
