@@ -3,9 +3,10 @@ Hello, repo updating is in progress. Please wait for a while.
 
 # Installation
 ```bash
-git clone https://github.com/fractalic-ai/llexem.git
-cd llexem
-python3 -m venv venv
+git clone https://github.com/fractalic-ai/llexem.git && \
+cd llexem && \
+python3 -m venv venv && \
+source venv/bin/activate && \
 pip install -r requirements.txt
 ```
 
