@@ -4,7 +4,6 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VENV_PATH="$SCRIPT_DIR/venv"
 SERVER_DIR="$SCRIPT_DIR/llexem/ui_server"
-SERVER_SCRIPT="server.py"
 
 # Activate virtual environment
 if [ -d "$VENV_PATH" ]; then
@@ -17,5 +16,5 @@ fi
 # Navigate to server directory
 cd "$SERVER_DIR" || { echo "Error: Failed to enter $SERVER_DIR"; exit 1; }
 
-# Run Uvicorn server
-uvicorn "$SERVER_SCRIPT":app --host 0.0.0.0 --port 8000 --reload
+# Run Uvicorn server (fixing module import issue)
+uvicorn server:app --host 0.0.0.0 --port 8000 --reload
