@@ -3,7 +3,8 @@
 # Get the directory of the script (relative path resolution)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VENV_PATH="$SCRIPT_DIR/venv"
-SERVER_MODULE="llexem.ui_server.server:app"  # Module path for uvicorn
+SERVER_DIR="$SCRIPT_DIR/llexem/ui_server"
+SERVER_SCRIPT="server.py"
 
 # Activate virtual environment
 if [ -d "$VENV_PATH" ]; then
@@ -13,5 +14,8 @@ else
     exit 1
 fi
 
-# Run Uvicorn server without changing directories
-uvicorn "$SERVER_MODULE" --host 0.0.0.0 --port 8000 --reload
+# Navigate to server directory
+cd "$SERVER_DIR" || { echo "Error: Failed to enter $SERVER_DIR"; exit 1; }
+
+# Run Uvicorn server
+uvicorn "$SERVER_SCRIPT":app --host 0.0.0.0 --port 8000 --reload
