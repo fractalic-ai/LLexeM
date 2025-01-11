@@ -1,5 +1,6 @@
 # server.py
 import asyncio
+import sys
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import PlainTextResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -343,7 +344,10 @@ async def run_llexem(request: Request):
     parent_dir = os.path.dirname(server_dir)
     root_dir = os.path.dirname(parent_dir)
     llexem_path = os.path.join(root_dir, "llexem.py")
-    command = f'python "{llexem_path}" "{file_path}"'
+
+    # Using current Python (from venv)
+    python_exe = sys.executable 
+    command = f'"{python_exe}" "{llexem_path}" "{file_path}"'
 
     async def stream_llexem():
         process = await asyncio.create_subprocess_shell(
