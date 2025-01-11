@@ -2,6 +2,7 @@ anthropic
 groq
 openai
 requests
+replicate
 fastapi==0.115.6
 gitpython==3.1.31
 jsonschema==4.23.0
