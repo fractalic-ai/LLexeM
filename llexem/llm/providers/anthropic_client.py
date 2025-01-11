@@ -54,22 +54,51 @@ class anthropicclient:
             
         return mime_type, img_data
 
-    def _load_image(self, image_path: str) -> Dict[str, Any]:
-        """Load and encode image with validation"""
-        try:
-            path = Path(image_path)
-            mime_type, img_data = self._validate_image(path)
-            
+    def _load_media(self, media_path: str) -> Dict[str, Any]:
+        """Load image or document with validation and encode as base64."""
+        path = Path(media_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Media not found: {media_path}")
+
+        # Handle PDFs
+        if path.suffix.lower() == ".pdf":
+            media_data = path.read_bytes()
             return {
-                "type": "image",
+                "type": "document",
                 "source": {
                     "type": "base64",
-                    "media_type": mime_type,
-                    "data": base64.b64encode(img_data).decode('utf-8')
+                    "media_type": "application/pdf",
+                    "data": base64.b64encode(media_data).decode("utf-8")
                 }
             }
-        except Exception as e:
-            raise RuntimeError(f"Failed to load image {image_path}: {str(e)}")
+
+        # Otherwise, handle images (existing logic)
+        file_size = path.stat().st_size
+        if file_size > MAX_IMAGE_SIZE:
+            raise ValueError(f"Image too large: {file_size/1024/1024:.1f}MB. Max size: 20MB")
+
+        img_data = path.read_bytes()
+        img_format = imghdr.what(None, img_data)
+        if not img_format:
+            raise ValueError(f"Unable to determine image format for {media_path}")
+
+        mime_type = None
+        for mime, formats in SUPPORTED_MEDIA_TYPES.items():
+            if img_format in formats:
+                mime_type = mime
+                break
+        if not mime_type:
+            raise ValueError(f"Unsupported image format: {img_format}. "
+                             f"Supported types: {', '.join(SUPPORTED_MEDIA_TYPES.keys())}")
+
+        return {
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": mime_type,
+                "data": base64.b64encode(img_data).decode('utf-8')
+            }
+        }
 
     def llm_call(self, prompt_text: str, operation_params: dict) -> str:
         model = Config.MODEL or "claude-3-5-sonnet-20241022"
@@ -82,8 +111,8 @@ class anthropicclient:
         
         # Add images if media field exists in operation params
         if operation_params and 'media' in operation_params:
-            for image_path in operation_params['media']:
-                content.append(self._load_image(image_path))
+            for media_path in operation_params['media']:
+                content.append(self._load_media(media_path))
 
         # Add text prompt
         content.append({
