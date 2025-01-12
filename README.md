@@ -3,7 +3,7 @@ Hello, repo updating is in progress. Please wait for a while.
 
 # Installation
 ```bash
-git clone https://github.com/fractalic-ai/coregit && \
+git clone https://github.com/fractalic-ai/fractalic.git && \
 cd fractalic && \
 python3 -m venv venv && \
 source venv/bin/activate && \
