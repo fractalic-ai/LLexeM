@@ -3,12 +3,12 @@ from sys import stderr, stdout
 import subprocess
 import time
 from typing import Optional
-from llexem.ast_md.node import Node, NodeType, OperationType
-from llexem.ast_md.ast import AST, perform_ast_operation
-from llexem.errors import BlockNotFoundError
-from llexem.config import Config
+from core.ast_md.node import Node, NodeType, OperationType
+from core.ast_md.ast import AST, perform_ast_operation
+from core.errors import BlockNotFoundError
+from core.config import Config
 import os
-from llexem.utils import load_settings
+from core.utils import load_settings
 from rich.console import Console
 from rich.spinner import Spinner
 from rich import print

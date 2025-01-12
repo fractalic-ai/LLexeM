@@ -2,11 +2,11 @@
 
 import os
 from typing import Optional
-from llexem.config import Config
-from llexem.utils import parse_file
-from llexem.ast_md.node import Node, OperationType
-from llexem.ast_md.ast import AST, perform_ast_operation
-from llexem.errors import BlockNotFoundError, FileNotFoundError
+from core.config import Config
+from core.utils import parse_file
+from core.ast_md.node import Node, OperationType
+from core.ast_md.ast import AST, perform_ast_operation
+from core.errors import BlockNotFoundError, FileNotFoundError
 
 def process_import(ast: AST, current_node: Node) -> Optional[Node]:
     # Extract parameters from current_node.params

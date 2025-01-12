@@ -5,17 +5,17 @@ from typing import Optional
 from pathlib import Path
 import time
 
-from llexem.ast_md.node import Node, OperationType, NodeType
-from llexem.ast_md.ast import AST, get_ast_part_by_path, perform_ast_operation
-from llexem.errors import BlockNotFoundError
-from llexem.config import Config
-from llexem.llm.llm_client import LLMClient  # Import the LLMClient class
+from core.ast_md.node import Node, OperationType, NodeType
+from core.ast_md.ast import AST, get_ast_part_by_path, perform_ast_operation
+from core.errors import BlockNotFoundError
+from core.config import Config
+from core.llm.llm_client import LLMClient  # Import the LLMClient class
 from rich.console import Console
 from rich.spinner import Spinner
 from rich import print
 from rich.status import Status
 
-# Assuming LLM_PROVIDER and API_KEY are globally set in llexem.py
+# Assuming LLM_PROVIDER and API_KEY are globally set in fractalic.py
 # You can initialize LLMClient here if it's a singleton
 
 

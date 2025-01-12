@@ -1,9 +1,9 @@
 # goto_op.py
 from typing import Optional
-from llexem.ast_md.node import Node
-from llexem.ast_md.ast import AST
-from llexem.errors import BlockNotFoundError
-from llexem.config import GOTO_LIMIT
+from core.ast_md.node import Node
+from core.ast_md.ast import AST
+from core.errors import BlockNotFoundError
+from core.config import GOTO_LIMIT
 
 def process_goto(ast: AST, current_node: Node, goto_count: dict) -> Optional[Node]:
     """Process @goto operation with schema validation support"""

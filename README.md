@@ -1,16 +1,16 @@
-# LLexeM updating in progress
+# fractalic updating in progress
 Hello, repo updating is in progress. Please wait for a while.
 
 # Installation
 ```bash
-git clone https://github.com/fractalic-ai/llexem.git && \
-cd llexem && \
+git clone https://github.com/fractalic-ai/coregit && \
+cd fractalic && \
 python3 -m venv venv && \
 source venv/bin/activate && \
 pip install -r requirements.txt
 ```
 
-# Running llexem backend server
+# Running fractalic backend server
 Required for UI to work. Please run the following command in the terminal.
 ```bash
 ./run_server.sh

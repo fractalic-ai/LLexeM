@@ -10,8 +10,8 @@ import subprocess
 import locale
 from contextlib import contextmanager
 
-from llexem.ast_md.node import NodeType, Node
-from llexem.ast_md.ast import AST
+from core.ast_md.node import NodeType, Node
+from core.ast_md.ast import AST
 
 def parse_file(filename: str) -> AST:
     content = read_file(filename)

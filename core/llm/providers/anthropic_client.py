@@ -1,5 +1,5 @@
 import anthropic
-from llexem.config import Config
+from core.config import Config
 import base64
 from pathlib import Path
 import mimetypes

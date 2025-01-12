@@ -331,9 +331,9 @@ async def save_file(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Updated run_llexem endpoint to stream output
-@app.post("/ws/run_llexem")
-async def run_llexem(request: Request):
+# Updated run_fractalic endpoint to stream output
+@app.post("/ws/run_fractalic")
+async def run_fractalic(request: Request):
     data = await request.json()
     file_path = data.get("file_path")
     if not file_path:
@@ -343,13 +343,13 @@ async def run_llexem(request: Request):
     server_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(server_dir)
     root_dir = os.path.dirname(parent_dir)
-    llexem_path = os.path.join(root_dir, "llexem.py")
+    fractalic_path = os.path.join(root_dir, "fractalic.py")
 
     # Using current Python (from venv)
     python_exe = sys.executable 
-    command = f'"{python_exe}" "{llexem_path}" "{file_path}"'
+    command = f'"{python_exe}" "{fractalic_path}" "{file_path}"'
 
-    async def stream_llexem():
+    async def stream_fractalic():
         process = await asyncio.create_subprocess_shell(
             command,
             stdout=asyncio.subprocess.PIPE,
@@ -373,4 +373,4 @@ async def run_llexem(request: Request):
 
         await process.wait()
 
-    return StreamingResponse(stream_llexem(), media_type="text/plain")
+    return StreamingResponse(stream_fractalic(), media_type="text/plain")

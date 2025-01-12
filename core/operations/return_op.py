@@ -1,7 +1,7 @@
 from typing import Optional
-from llexem.ast_md.ast import AST, get_ast_part_by_path
-from llexem.ast_md.node import Node, NodeType
-from llexem.errors import BlockNotFoundError
+from core.ast_md.ast import AST, get_ast_part_by_path
+from core.ast_md.node import Node, NodeType
+from core.errors import BlockNotFoundError
 
 def process_return(ast: AST, current_node: Node) -> Optional[AST]:
     """Process @return operation with updated schema"""

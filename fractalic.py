@@ -7,15 +7,15 @@ import traceback
 import toml
 from pathlib import Path
 
-from llexem.git import commit_changes, ensure_git_repo
-from llexem.ast_md.parser import print_parsed_structure
-from llexem.utils import parse_file, load_settings
-from llexem.config import Config
-from llexem.ast_md.ast import AST
-from llexem.utils import read_file
-from llexem.operations.runner import run
-from llexem.operations.call_tree import CallTreeNode
-from llexem.errors import BlockNotFoundError, UnknownOperationError
+from core.git import commit_changes, ensure_git_repo
+from core.ast_md.parser import print_parsed_structure
+from core.utils import parse_file, load_settings
+from core.config import Config
+from core.ast_md.ast import AST
+from core.utils import read_file
+from core.operations.runner import run
+from core.operations.call_tree import CallTreeNode
+from core.errors import BlockNotFoundError, UnknownOperationError
 
 from rich.console import Console
 from rich.panel import Panel
@@ -171,7 +171,7 @@ def main():
         print(f"[EventMessage: Root-Context-Saved] ID: {branch_name}, {ctx_hash}")
 
     except (BlockNotFoundError, UnknownOperationError, FileNotFoundError, ValueError) as e:
-        print(f"[ERROR llexem.py] {str(e)}")
+        print(f"[ERROR fractalic.py] {str(e)}")
         sys.exit(1)
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()

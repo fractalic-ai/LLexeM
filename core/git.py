@@ -63,11 +63,11 @@ def reset_to_main_branch(repo_path):
             # repo.remotes.origin.pull()
             # Log success if needed
     except git.exc.GitError as e:
-        print(f"[llexem.git] Error resetting to main branch: {e}")
+        print(f"[fractalic.git] Error resetting to main branch: {e}")
         traceback.print_exc()
         raise
     except Exception as e:
-        print(f"[llexem.git-e1] {e}")
+        print(f"[fractalic.git-e1] {e}")
         traceback.print_exc()
         raise
 
@@ -89,11 +89,11 @@ def ensure_git_repo(repo_path):
                 repo.index.commit("Initial commit")
             return True
         except git.exc.GitError as e:
-            print(f"[llexem.git] Error initializing repository: {e}")
+            print(f"[fractalic.git] Error initializing repository: {e}")
             traceback.print_exc()
             raise
         except Exception as e:
-            print(f"[llexem.git] Unexpected error initializing repository: {e}")
+            print(f"[fractalic.git] Unexpected error initializing repository: {e}")
             traceback.print_exc()
             raise
     else:
@@ -102,11 +102,11 @@ def ensure_git_repo(repo_path):
             ensure_gitignore(repo_path)
             return False
         except git.exc.GitError as e:
-            print(f"[llexem.git] Error accessing existing repository: {e}")
+            print(f"[fractalic.git] Error accessing existing repository: {e}")
             traceback.print_exc()
             raise
         except Exception as e:
-            print(f"[llexem.git] Unexpected error accessing repository: {e}")
+            print(f"[fractalic.git] Unexpected error accessing repository: {e}")
             traceback.print_exc()
             raise
 
@@ -116,9 +116,9 @@ def cleanup_git_locks(repo_path):
     if os.path.exists(config_lock):
         try:
             os.remove(config_lock)
-            print(f"[llexem.git] Removed stale lock file: {config_lock}")
+            print(f"[fractalic.git] Removed stale lock file: {config_lock}")
         except Exception as e:
-            print(f"[llexem.git] Error removing lock file {config_lock}: {e}")
+            print(f"[fractalic.git] Error removing lock file {config_lock}: {e}")
 
 def configure_git_user(repo_path):
     """Configure Git user settings for the repository."""
@@ -128,8 +128,8 @@ def configure_git_user(repo_path):
         
         with git.Repo(repo_path) as repo:
             with repo.config_writer() as config:
-                config.set_value('user', 'email', 'llexem_core_agent@llexem_core_agent.com')
-                config.set_value('user', 'name', 'llexem process')
+                config.set_value('user', 'email', 'fractalic_core_agent@fractalic_core_agent.com')
+                config.set_value('user', 'name', 'fractalic process')
                 config.set_value('core', 'autocrlf', 'false')
                 config.set_value('core', 'safecrlf', 'false')
                 config.set_value('core', 'ignorecase', 'false')
@@ -141,26 +141,26 @@ def configure_git_user(repo_path):
 
             # Correct configurations if they do not match expected values
             if not is_false(core_autocrlf):
-                print(f"[llexem.git] Warning: core.autocrlf is set to '{core_autocrlf}' (expected 'false')")
+                print(f"[fractalic.git] Warning: core.autocrlf is set to '{core_autocrlf}' (expected 'false')")
                 with repo.config_writer() as config_writer:
                     config_writer.set_value('core', 'autocrlf', 'false')
 
             if not is_false(core_safecrlf):
-                print(f"[llexem.git] Warning: core.safecrlf is set to '{core_safecrlf}' (expected 'false')")
+                print(f"[fractalic.git] Warning: core.safecrlf is set to '{core_safecrlf}' (expected 'false')")
                 with repo.config_writer() as config_writer:
                     config_writer.set_value('core', 'safecrlf', 'false')
 
             if not is_false(core_ignorecase):
-                print(f"[llexem.git] Warning: core.ignorecase is set to '{core_ignorecase}' (expected 'false')")
+                print(f"[fractalic.git] Warning: core.ignorecase is set to '{core_ignorecase}' (expected 'false')")
                 with repo.config_writer() as config_writer:
                     config_writer.set_value('core', 'ignorecase', 'false')
 
     except git.exc.GitError as e:
-        print(f"[llexem.git] Error configuring Git user: {e}")
+        print(f"[fractalic.git] Error configuring Git user: {e}")
         traceback.print_exc()
         raise
     except Exception as e:
-        print(f"[llexem.git] Unexpected error configuring Git user: {e}")
+        print(f"[fractalic.git] Unexpected error configuring Git user: {e}")
         traceback.print_exc()
         raise
 
@@ -180,7 +180,7 @@ def create_gitignore(repo_path):
                 repo.index.commit("Add .gitignore")
             # Log creation if needed
         except Exception as e:
-            print(f"[llexem.git] Warning: Failed to create .gitignore: {e}")
+            print(f"[fractalic.git] Warning: Failed to create .gitignore: {e}")
             traceback.print_exc()
 
 def ensure_gitignore(repo_path):
@@ -202,9 +202,9 @@ def ensure_gitignore(repo_path):
                 with git.Repo(repo_path) as repo:
                     repo.index.add(['.gitignore'])
                     repo.index.commit("Update .gitignore")
-                print("[llexem.git] Updated .gitignore with missing patterns")
+                print("[fractalic.git] Updated .gitignore with missing patterns")
         except Exception as e:
-            print(f"[llexem.git] Warning: Failed to update .gitignore: {e}")
+            print(f"[fractalic.git] Warning: Failed to update .gitignore: {e}")
             traceback.print_exc()
 
 def is_git_repo(repo_path):
@@ -216,7 +216,7 @@ def is_git_repo(repo_path):
     except git.exc.InvalidGitRepositoryError:
         return False
     except Exception as e:
-        print(f"[llexem.git] Error checking if path is a Git repository: {e}")
+        print(f"[fractalic.git] Error checking if path is a Git repository: {e}")
         traceback.print_exc()
         return False
 
@@ -238,11 +238,11 @@ def create_session_branch(repo_path, task_name):
             # Log branch creation if needed
             return branch_name
     except git.exc.GitError as e:
-        print(f"[llexem.git] Error creating session branch: {e}")
+        print(f"[fractalic.git] Error creating session branch: {e}")
         traceback.print_exc()
         raise
     except Exception as e:
-        print(f"[llexem.git] Unexpected error creating session branch: {e}")
+        print(f"[fractalic.git] Unexpected error creating session branch: {e}")
         traceback.print_exc()
         raise
 
@@ -253,11 +253,11 @@ def modify_markdown_file(file_path, content):
             file.write(content)
         # Log modification if needed
     except IOError as e:
-        print(f"[llexem.git] Error modifying markdown file: {e}")
+        print(f"[fractalic.git] Error modifying markdown file: {e}")
         traceback.print_exc()
         raise
     except Exception as e:
-        print(f"[llexem.git] Unexpected error modifying markdown file: {e}")
+        print(f"[fractalic.git] Unexpected error modifying markdown file: {e}")
         traceback.print_exc()
         raise
 
@@ -291,7 +291,7 @@ def get_file_status(repo_path, file_path):
                 return "untracked"
 
     except Exception as e:
-        print(f"[llexem.git] Error checking file status: {e}")
+        print(f"[fractalic.git] Error checking file status: {e}")
         traceback.print_exc()
         return "error"
 
@@ -323,12 +323,12 @@ def commit_changes(repo_path, commit_message, files_to_commit, trigger_file=None
                 try:
                     rel_path = os.path.relpath(abs_file_path, repo.working_tree_dir)
                 except ValueError as e:
-                    print(f"[llexem.git] Error converting path: {e}")
+                    print(f"[fractalic.git] Error converting path: {e}")
                     traceback.print_exc()
                     continue
 
                 if not os.path.exists(abs_file_path):
-                    print(f"[llexem.git] Warning: File does not exist: {abs_file_path}")
+                    print(f"[fractalic.git] Warning: File does not exist: {abs_file_path}")
                     continue
 
                 try:
@@ -351,7 +351,7 @@ def commit_changes(repo_path, commit_message, files_to_commit, trigger_file=None
                     else:
                         pass  # File unchanged, nothing to do
                 except Exception as e:
-                    print(f"[llexem.git] Error processing file {rel_path}: {e}")
+                    print(f"[fractalic.git] Error processing file {rel_path}: {e}")
                     traceback.print_exc()
                     continue
 
@@ -363,7 +363,7 @@ def commit_changes(repo_path, commit_message, files_to_commit, trigger_file=None
             try:
                 repo.index.commit(full_message)
             except git.exc.GitError as e:
-                print(f"[llexem.git] Commit failed: {e}")
+                print(f"[fractalic.git] Commit failed: {e}")
                 traceback.print_exc()
                 return current_hash
 
@@ -373,6 +373,6 @@ def commit_changes(repo_path, commit_message, files_to_commit, trigger_file=None
             return new_hash
 
     except Exception as e:
-        print(f"[llexem.git] Error during commit operation: {e}")
+        print(f"[fractalic.git] Error during commit operation: {e}")
         traceback.print_exc()
         return None

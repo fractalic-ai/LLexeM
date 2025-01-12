@@ -5,8 +5,8 @@
 from ast import AST
 import re
 from typing import Dict, Optional, Union
-from llexem.ast_md.node import Node, NodeType
-# from llexem.ast_md.operation_parser import OperationParser
+from core.ast_md.node import Node, NodeType
+# from core.ast_md.operation_parser import OperationParser
 
 import re
 import yaml

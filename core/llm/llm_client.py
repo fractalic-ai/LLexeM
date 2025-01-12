@@ -8,7 +8,7 @@ class LLMClient:
 
     def _initialize_client(self):
         # Construct the module name based on the provider
-        module_name = f"llexem.llm.providers.{self.provider}_client"
+        module_name = f"fractalic.llm.providers.{self.provider}_client"
         
         # Standardized lowercase class name
         class_name = f"{self.provider}client"

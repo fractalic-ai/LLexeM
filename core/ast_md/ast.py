@@ -9,9 +9,9 @@
 
 import copy
 from typing import Dict, Optional
-from llexem.ast_md.parser import Parser, get_head, get_tail
-from llexem.ast_md.node import Node, NodeType, OperationType
-from llexem.errors import BlockNotFoundError
+from core.ast_md.parser import Parser, get_head, get_tail
+from core.ast_md.node import Node, NodeType, OperationType
+from core.errors import BlockNotFoundError
 
 class AST:
     def __init__(self, content: str):

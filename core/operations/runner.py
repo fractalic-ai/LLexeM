@@ -5,19 +5,19 @@ import uuid
 from typing import Optional, Tuple, Union
 from pathlib import Path
 
-from llexem.ast_md.ast import AST, get_ast_part_by_id, perform_ast_operation, get_ast_part_by_path
-from llexem.ast_md.node import Node, NodeType, OperationType
-from llexem.errors import BlockNotFoundError, UnknownOperationError
-from llexem.config import Config
-from llexem.utils import parse_file, get_content_without_header
-from llexem.render.render_ast import render_ast_to_markdown
-from llexem.operations.import_op import process_import
-from llexem.operations.llm_op import process_llm
-from llexem.operations.goto_op import process_goto
-from llexem.operations.shell_op import process_shell
-from llexem.operations.return_op import process_return
-from llexem.operations.call_tree import CallTreeNode
-from llexem.git import ensure_git_repo, create_session_branch, commit_changes
+from core.ast_md.ast import AST, get_ast_part_by_id, perform_ast_operation, get_ast_part_by_path
+from core.ast_md.node import Node, NodeType, OperationType
+from core.errors import BlockNotFoundError, UnknownOperationError
+from core.config import Config
+from core.utils import parse_file, get_content_without_header
+from core.render.render_ast import render_ast_to_markdown
+from core.operations.import_op import process_import
+from core.operations.llm_op import process_llm
+from core.operations.goto_op import process_goto
+from core.operations.shell_op import process_shell
+from core.operations.return_op import process_return
+from core.operations.call_tree import CallTreeNode
+from core.git import ensure_git_repo, create_session_branch, commit_changes
 from rich import print
 from rich.console import Console
 
