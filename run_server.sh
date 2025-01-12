@@ -3,7 +3,7 @@
 # Get the directory of the script (relative path resolution)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VENV_PATH="$SCRIPT_DIR/venv"
-SERVER_DIR="$SCRIPT_DIR/fractalic/ui_server"
+SERVER_DIR="$SCRIPT_DIR/core/ui_server"
 
 # Activate virtual environment
 if [ -d "$VENV_PATH" ]; then
