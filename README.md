@@ -1,6 +1,10 @@
 # fractalic updating in progress
 Hello, repo updating is in progress. Please wait for a while.
 
+# Requirments
+Important: please ensure you have Git installed on your system.
+Git dependecy would be removed in future releases. Sessions would be stored on .zip or .tar.gz files.
+
 # Installation
 ```bash
 git clone https://github.com/fractalic-ai/fractalic.git && \
