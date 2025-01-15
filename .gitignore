@@ -1,6 +1,9 @@
 # fractalic: excluding settings.toml file
 settings.toml
 
+# macOS
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -172,3 +175,4 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+.DS_Store

@@ -5,14 +5,55 @@ Hello, repo updating is in progress. Please wait for a while.
 Important: please ensure you have Git installed on your system.
 Git dependecy would be removed in future releases. Sessions would be stored on .zip or .tar.gz files.
 
-# Installation
+# Installation (Docker)
+As for now, the best way to use Fraxtalic is to install both interpreter with backend server and UI frontend and run it as odcker container, if you dont need docker - please skip that step.
+
+```bash
+git clone https://github.com/fractalic-ai/fractalic.git && \
+git clone https://github.com/fractalic-ai/fractalic-ui.git  && \
+cd fractalic && \
+cp -a docker/. .. && \
+cd .. && \
+podman build -t fractalic-app . && \
+podman run -d \
+  -p 8000:8000 \
+  -p 3000:3000 \
+  --name fractalic-app \
+  fractalic-app
+```
+Now UI should be avaliable on http://localhost:3000
+Please be aware to connect local folder with .md files to persist changes
+Same action is required for settings toml
+
+
+# Installation (Local)
+
+1. Backend installation
 ```bash
 git clone https://github.com/fractalic-ai/fractalic.git && \
 cd fractalic && \
 python3 -m venv venv && \
 source venv/bin/activate && \
-pip install -r requirements.txt
+pip install -r requirements.txt 
 ```
+2. Run backend
+```bash
+./run_server.sh
+```
+
+3. Frontend installation
+```bash
+git clone https://github.com/fractalic-ai/fractalic-ui.git  && \
+cd fractalic-ui && \
+npm install 
+```
+
+4. Run frontend
+```bash
+npm run dev
+```
+
+
 
 # Running fractalic backend server
 Required for UI to work. Please run the following command in the terminal.
