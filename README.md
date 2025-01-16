@@ -14,8 +14,8 @@ git clone https://github.com/fractalic-ai/fractalic-ui.git  && \
 cd fractalic && \
 cp -a docker/. .. && \
 cd .. && \
-podman build -t fractalic-app . && \
-podman run -d \
+docker build -t fractalic-app . && \
+docker run -d \
   -p 8000:8000 \
   -p 3000:3000 \
   --name fractalic-app \
