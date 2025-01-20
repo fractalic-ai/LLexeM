@@ -255,10 +255,13 @@ def process_run(ast: AST, current_node: Node, local_file_name, parent_operation,
     use_header = params.get('use-header')
 
     # Validate prompt and block are not both specified
-    if prompt and block_uri:
-        raise ValueError("Cannot specify both 'prompt' and 'block' parameters")
-
-    parameter_value = None
+    # if prompt and block_uri:
+    #     raise ValueError("Cannot specify both 'prompt' and 'block' parameters")
+    
+    # Create an empty input AST that will hold all input blocks
+    input_ast = None
+    
+    # Handle prompt if specified
     if prompt:
         header = ""
         use_header = params.get('use-header')
@@ -267,14 +270,45 @@ def process_run(ast: AST, current_node: Node, local_file_name, parent_operation,
                 header = f"{use_header}\n"
         else:
             header = "# Input Parameters {id=input-parameters}\n"
+            
         parameter_value = f"{header}{prompt}"
-    elif block_uri:
-        # Get block content without modifying headers
+        param_node = Node(
+            type=NodeType.HEADING,
+            name="Input Parameters",
+            level=1,
+            content=parameter_value,
+            id="InputParameters",
+            key=str(uuid.uuid4())[:8]
+        )
+        
+        # Create AST from prompt node
+        input_ast = AST("")
+        input_ast.parser.nodes = {param_node.key: param_node}
+        input_ast.parser.head = param_node
+        input_ast.parser.tail = param_node
+    
+    # Handle block if specified (stacking with prompt if both present)
+    if block_uri:
         try:
-            param_ast = get_ast_part_by_path(ast, block_uri, nested_flag)
-            if not param_ast.parser.nodes:
+            block_ast = get_ast_part_by_path(ast, block_uri, nested_flag)
+            if not block_ast.parser.nodes:
                 raise BlockNotFoundError(f"Block with path '{block_uri}' is empty.")
-            parameter_value = "\n\n".join(node.content for node in param_ast.parser.nodes.values())
+                
+            if input_ast:
+                # If we already have prompt content, append block content
+                perform_ast_operation(
+                    src_ast=block_ast,
+                    src_path='',
+                    src_hierarchy=False,
+                    dest_ast=input_ast,
+                    dest_path=input_ast.parser.tail.key,
+                    dest_hierarchy=False,
+                    operation=OperationType.APPEND
+                )
+            else:
+                # If no prompt content, use block content directly
+                input_ast = block_ast
+                
         except BlockNotFoundError:
             raise BlockNotFoundError(f"Block with path '{block_uri}' not found.")
 
@@ -298,17 +332,30 @@ def process_run(ast: AST, current_node: Node, local_file_name, parent_operation,
         )
 
     # Execute run
-    run_result, child_call_tree_node, ctx_file, ctx_file_hash, branch_name = run(
-        source_path,
-        param_node,
-        False,
-        local_file_name,
-        parent_operation,
-        call_tree_node,
-        committed_files=committed_files,
-        file_commit_hashes=file_commit_hashes,
-        base_dir=base_dir
-    )
+    if input_ast and input_ast.parser.nodes:
+        run_result, child_call_tree_node, ctx_file, ctx_file_hash, branch_name = run(
+            source_path,
+            input_ast,  # Pass the complete input AST
+            False,
+            local_file_name,
+            parent_operation,
+            call_tree_node,
+            committed_files=committed_files,
+            file_commit_hashes=file_commit_hashes,
+            base_dir=base_dir
+        )
+    else:
+        run_result, child_call_tree_node, ctx_file, ctx_file_hash, branch_name = run(
+            source_path,
+            None,
+            False,
+            local_file_name,
+            parent_operation,
+            call_tree_node,
+            committed_files=committed_files,
+            file_commit_hashes=file_commit_hashes,
+            base_dir=base_dir
+        )
 
     # Handle results insertion
     if target_block_id:
