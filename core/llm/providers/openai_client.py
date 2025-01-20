@@ -5,7 +5,7 @@ class openaiclient:
     def __init__(self, api_key: str):
         self.client = OpenAI(api_key=api_key)
 
-    def llm_call(self, prompt_text: str) -> str:
+    def llm_call(self, prompt_text: str, operation_params: dict) -> str:
         # Use settings from Config, with default fallbacks
         model = Config.MODEL or "gpt-4o"
         temperature = Config.TEMPERATURE or 0.6
