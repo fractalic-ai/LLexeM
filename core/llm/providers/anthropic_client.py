@@ -4,6 +4,7 @@ import base64
 from pathlib import Path
 import mimetypes
 from typing import Dict, Any
+from rich.box import ASCII
 import imghdr
 from PIL import Image
 import io
@@ -56,49 +57,88 @@ class anthropicclient:
 
     def _load_media(self, media_path: str) -> Dict[str, Any]:
         """Load image or document with validation and encode as base64."""
-        path = Path(media_path)
-        if not path.exists():
-            raise FileNotFoundError(f"Media not found: {media_path}")
+        from rich.console import Console
+        from rich.panel import Panel
+        from rich.syntax import Syntax
+        from rich.text import Text
+        
+        console = Console()
+        width = console.width - 4  # Account for panel borders
 
-        # Handle PDFs
-        if path.suffix.lower() == ".pdf":
-            media_data = path.read_bytes()
+        try:
+            path = Path(media_path)
+            if not path.exists():
+                # Get operation context from current stack
+                import inspect
+                frame = inspect.currentframe()
+                while frame:
+                    if 'current_node' in frame.f_locals:
+                        operation = frame.f_locals['current_node']
+                        # Format operation content with proper wrapping
+                        operation_text = operation.content.strip()
+
+
+                        # Print formatted error message
+                        console.print()
+                        console.print("[bold red]✗ Error:[/bold red] Media not found")
+                        console.print(f"[red]Path:[/red] {media_path}")
+                        console.print(
+                            Syntax(
+                                operation_text,
+                                "yaml",
+                                line_numbers=True,
+                                word_wrap=True,
+                                theme="monokai",
+                                background_color="grey15"
+                            )
+                        )
+                        break
+                    frame = frame.f_back
+
+                raise FileNotFoundError(f"Media not found: {media_path}")
+
+            # Rest of existing media loading code...
+            if path.suffix.lower() == ".pdf":
+                media_data = path.read_bytes()
+                return {
+                    "type": "document",
+                    "source": {
+                        "type": "base64", 
+                        "media_type": "application/pdf",
+                        "data": base64.b64encode(media_data).decode("utf-8")
+                    }
+                }
+                
+            # Otherwise, handle images (existing logic)
+            file_size = path.stat().st_size
+            if file_size > MAX_IMAGE_SIZE:
+                raise ValueError(f"Image too large: {file_size/1024/1024:.1f}MB. Max size: 20MB")
+
+            img_data = path.read_bytes()
+            img_format = imghdr.what(None, img_data)
+            if not img_format:
+                raise ValueError(f"Unable to determine image format for {media_path}")
+
+            mime_type = None
+            for mime, formats in SUPPORTED_MEDIA_TYPES.items():
+                if img_format in formats:
+                    mime_type = mime
+                    break
+            if not mime_type:
+                raise ValueError(f"Unsupported image format: {img_format}. "
+                                 f"Supported types: {', '.join(SUPPORTED_MEDIA_TYPES.keys())}")
+
             return {
-                "type": "document",
+                "type": "image",
                 "source": {
                     "type": "base64",
-                    "media_type": "application/pdf",
-                    "data": base64.b64encode(media_data).decode("utf-8")
+                    "media_type": mime_type,
+                    "data": base64.b64encode(img_data).decode('utf-8')
                 }
             }
-
-        # Otherwise, handle images (existing logic)
-        file_size = path.stat().st_size
-        if file_size > MAX_IMAGE_SIZE:
-            raise ValueError(f"Image too large: {file_size/1024/1024:.1f}MB. Max size: 20MB")
-
-        img_data = path.read_bytes()
-        img_format = imghdr.what(None, img_data)
-        if not img_format:
-            raise ValueError(f"Unable to determine image format for {media_path}")
-
-        mime_type = None
-        for mime, formats in SUPPORTED_MEDIA_TYPES.items():
-            if img_format in formats:
-                mime_type = mime
-                break
-        if not mime_type:
-            raise ValueError(f"Unsupported image format: {img_format}. "
-                             f"Supported types: {', '.join(SUPPORTED_MEDIA_TYPES.keys())}")
-
-        return {
-            "type": "image",
-            "source": {
-                "type": "base64",
-                "media_type": mime_type,
-                "data": base64.b64encode(img_data).decode('utf-8')
-            }
-        }
+        except Exception as e:
+            console.print(f"[bold red]✗ Error:[/bold red] {str(e)}")
+            raise
 
     def llm_call(self, prompt_text: str, operation_params: dict) -> str:
         model = Config.MODEL or "claude-3-5-sonnet-20241022"

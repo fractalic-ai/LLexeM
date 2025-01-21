@@ -1,5 +1,5 @@
 from typing import Optional
-from core.ast_md.ast import AST, get_ast_part_by_path
+from core.ast_md.ast import AST, get_ast_part_by_path, perform_ast_operation, OperationType
 from core.ast_md.node import Node, NodeType
 from core.errors import BlockNotFoundError
 
@@ -9,20 +9,55 @@ def process_return(ast: AST, current_node: Node) -> Optional[AST]:
     if not params:
         raise ValueError("No parameters found for @return operation.")
 
+    # Create an empty AST to hold all blocks
+    return_ast = None
+
     # Get prompt and block parameters
     prompt = params.get('prompt')
     block_params = params.get('block', {})
-    block_uri = block_params.get('block_uri', '')
-    nested_flag = block_params.get('nested_flag', False)
     use_header = params.get('use-header')
 
-    # Validate parameters
-    if prompt and block_uri:
-        raise ValueError("Cannot specify both 'prompt' and 'block' parameters")
-    if not prompt and not block_uri:
-        raise ValueError("Either 'prompt' or 'block' parameter must be specified")
+    # Handle blocks first (can be single block or array)
+    if block_params:
+        try:
+            if block_params.get('is_multi'):
+                # Handle array of blocks
+                blocks = block_params.get('blocks', [])
+                for block_info in blocks:
+                    block_uri = block_info.get('block_uri')
+                    nested_flag = block_info.get('nested_flag', False)
+                    
+                    block_ast = get_ast_part_by_path(ast, block_uri, nested_flag)
+                    if not block_ast.parser.nodes:
+                        raise BlockNotFoundError(f"Block with path '{block_uri}' is empty.")
+                        
+                    if return_ast:
+                        # Stack blocks by appending
+                        perform_ast_operation(
+                            src_ast=block_ast,
+                            src_path='',
+                            src_hierarchy=False,
+                            dest_ast=return_ast,
+                            dest_path=return_ast.parser.tail.key,
+                            dest_hierarchy=False,
+                            operation=OperationType.APPEND
+                        )
+                    else:
+                        # First block becomes base AST
+                        return_ast = block_ast
+            else:
+                # Handle single block
+                block_uri = block_params.get('block_uri')
+                nested_flag = block_params.get('nested_flag', False)
+                block_ast = get_ast_part_by_path(ast, block_uri, nested_flag)
+                if not block_ast.parser.nodes:
+                    raise BlockNotFoundError(f"Block with path '{block_uri}' is empty.")
+                return_ast = block_ast
+                
+        except BlockNotFoundError:
+            raise BlockNotFoundError(f"Block not found in @return operation")
 
-    # Handle prompt-based return
+    # Handle prompt if specified (append to blocks if present)
     if prompt:
         header = ""
         if use_header is not None:
@@ -30,33 +65,26 @@ def process_return(ast: AST, current_node: Node) -> Optional[AST]:
                 header = f"{use_header}\n"
         else:
             header = "# Return block\n"
-        return_ast = AST(f"{header}{prompt}\n")
-        return return_ast
-
-    # Handle block-based return
-    try:
-        return_ast = get_ast_part_by_path(ast, block_uri, nested_flag)
-        if not return_ast.parser.nodes:
-            raise ValueError(f"Block with path '{block_uri}' is empty.")
-
-        # Only modify header if use-header is specified for block return
-        if use_header:
-            header_node = Node(
-                type=NodeType.HEADING,
-                name=use_header.lstrip('#').strip(),
-                level=use_header.count('#'),
-                content=use_header,
-                id=None,  # Let AST generate ID
-                key=None  # Let AST generate key
-            )
             
-            # Update nodes with new header
-            updated_nodes = {header_node.key: header_node}
-            updated_nodes.update(return_ast.parser.nodes)
-            return_ast.parser.nodes = updated_nodes
-            return_ast.parser.head = header_node
+        # Create prompt AST
+        prompt_ast = AST(f"{header}{prompt}\n")
+        
+        if return_ast:
+            # Append prompt to existing blocks
+            perform_ast_operation(
+                src_ast=prompt_ast,
+                src_path='',
+                src_hierarchy=False,
+                dest_ast=return_ast,
+                dest_path=return_ast.parser.tail.key,
+                dest_hierarchy=False,
+                operation=OperationType.APPEND
+            )
+        else:
+            # No blocks, use prompt as return AST
+            return_ast = prompt_ast
 
-        return return_ast
+    if not return_ast:
+        raise ValueError("Either 'prompt' or 'block' parameter must be specified for @return operation")
 
-    except BlockNotFoundError:
-        raise ValueError(f"Block with path '{block_uri}' not found.")
+    return return_ast

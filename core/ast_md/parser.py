@@ -101,9 +101,19 @@ operations:
         type: string
         description: "Optional input text or block reference to pass to the executed file"
       block:
-        type: string
+        oneOf:
+        - type: string
+        - type: array
+          items:
+            type: string
         x-process: block-path
-        description: "Optional block reference to pass to the executed file"
+        description: |
+          Block reference to use as prompt. 
+          Can be used as collection of blocks. 
+          At least one of `prompt` or `block` should be provided. 
+          If both are provided - they are stacked together in order: [specified blocks]+prompt. 
+          If only prompt, it stacked as [all previous blocks]+prompt.
+          if only block, or blocks, they are stacked together and no other context is added.
       use-header:
         type: string
         description: "if provided - with prompt, header would be appended with propmpt content to target file before execution"
@@ -147,9 +157,19 @@ operations:
         type: string
         description: "Literal text to return"
       block:
-        type: string
+        oneOf:
+        - type: string
+        - type: array
+          items:
+            type: string
         x-process: block-path
-        description: "Block reference to return content from"
+        description: |
+          Block reference to use as prompt. 
+          Can be used as collection of blocks. 
+          At least one of `prompt` or `block` should be provided. 
+          If both are provided - they are stacked together in order: [specified blocks]+prompt. 
+          If only prompt, it stacked as [all previous blocks]+prompt.
+          if only block, or blocks, they are stacked together and no other context is added.
       use-header:
         type: string
         description: "Optional header for returned prompt, overwrites default. Use 'none' to omit header completely (case-insensitive)"

@@ -261,10 +261,49 @@ def process_run(ast: AST, current_node: Node, local_file_name, parent_operation,
     # Create an empty input AST that will hold all input blocks
     input_ast = None
     
-    # Handle prompt if specified
+    # Handle blocks first (can be single block or array)
+    if block_params:
+        try:
+            if block_params.get('is_multi'):
+                # Handle array of blocks
+                blocks = block_params.get('blocks', [])
+                for block_info in blocks:
+                    block_uri = block_info.get('block_uri')
+                    nested_flag = block_info.get('nested_flag', False)
+                    
+                    block_ast = get_ast_part_by_path(ast, block_uri, nested_flag)
+                    if not block_ast.parser.nodes:
+                        raise BlockNotFoundError(f"Block with path '{block_uri}' is empty.")
+                        
+                    if input_ast:
+                        # Stack blocks by appending
+                        perform_ast_operation(
+                            src_ast=block_ast,
+                            src_path='',
+                            src_hierarchy=False,
+                            dest_ast=input_ast,
+                            dest_path=input_ast.parser.tail.key,
+                            dest_hierarchy=False,
+                            operation=OperationType.APPEND
+                        )
+                    else:
+                        # First block becomes base AST
+                        input_ast = block_ast
+            else:
+                # Handle single block (existing logic)
+                block_uri = block_params.get('block_uri')
+                nested_flag = block_params.get('nested_flag', False)
+                block_ast = get_ast_part_by_path(ast, block_uri, nested_flag)
+                if not block_ast.parser.nodes:
+                    raise BlockNotFoundError(f"Block with path '{block_uri}' is empty.")
+                input_ast = block_ast
+                
+        except BlockNotFoundError as e:
+            raise BlockNotFoundError(f"Error processing blocks: {str(e)}")
+    
+    # Handle prompt if specified (append to blocks if present)
     if prompt:
         header = ""
-        use_header = params.get('use-header')
         if use_header is not None:
             if use_header.lower() != "none":
                 header = f"{use_header}\n"
@@ -281,36 +320,26 @@ def process_run(ast: AST, current_node: Node, local_file_name, parent_operation,
             key=str(uuid.uuid4())[:8]
         )
         
-        # Create AST from prompt node
-        input_ast = AST("")
-        input_ast.parser.nodes = {param_node.key: param_node}
-        input_ast.parser.head = param_node
-        input_ast.parser.tail = param_node
-    
-    # Handle block if specified (stacking with prompt if both present)
-    if block_uri:
-        try:
-            block_ast = get_ast_part_by_path(ast, block_uri, nested_flag)
-            if not block_ast.parser.nodes:
-                raise BlockNotFoundError(f"Block with path '{block_uri}' is empty.")
-                
-            if input_ast:
-                # If we already have prompt content, append block content
-                perform_ast_operation(
-                    src_ast=block_ast,
-                    src_path='',
-                    src_hierarchy=False,
-                    dest_ast=input_ast,
-                    dest_path=input_ast.parser.tail.key,
-                    dest_hierarchy=False,
-                    operation=OperationType.APPEND
-                )
-            else:
-                # If no prompt content, use block content directly
-                input_ast = block_ast
-                
-        except BlockNotFoundError:
-            raise BlockNotFoundError(f"Block with path '{block_uri}' not found.")
+        # Create prompt AST
+        prompt_ast = AST("")
+        prompt_ast.parser.nodes = {param_node.key: param_node}
+        prompt_ast.parser.head = param_node
+        prompt_ast.parser.tail = param_node
+        
+        if input_ast:
+            # Append prompt to existing blocks
+            perform_ast_operation(
+                src_ast=prompt_ast,
+                src_path='',
+                src_hierarchy=False,
+                dest_ast=input_ast,
+                dest_path=input_ast.parser.tail.key,
+                dest_hierarchy=False,
+                operation=OperationType.APPEND
+            )
+        else:
+            # No blocks, use prompt as input
+            input_ast = prompt_ast
 
     # Handle file execution
     current_dir = os.path.dirname(os.path.abspath(local_file_name))
