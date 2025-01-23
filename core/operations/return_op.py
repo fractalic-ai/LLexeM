@@ -2,9 +2,11 @@ from typing import Optional
 from core.ast_md.ast import AST, get_ast_part_by_path, perform_ast_operation, OperationType
 from core.ast_md.node import Node, NodeType
 from core.errors import BlockNotFoundError
+from rich.console import Console
 
 def process_return(ast: AST, current_node: Node) -> Optional[AST]:
     """Process @return operation with updated schema"""
+    console = Console(force_terminal=True, color_system="auto")
     params = current_node.params
     if not params:
         raise ValueError("No parameters found for @return operation.")
@@ -87,4 +89,5 @@ def process_return(ast: AST, current_node: Node) -> Optional[AST]:
     if not return_ast:
         raise ValueError("Either 'prompt' or 'block' parameter must be specified for @return operation")
 
+    console.print("[light_green]→[/light_green] @return ")
     return return_ast

@@ -4,8 +4,10 @@ from core.ast_md.node import Node
 from core.ast_md.ast import AST
 from core.errors import BlockNotFoundError
 from core.config import GOTO_LIMIT
+from rich.console import Console
 
 def process_goto(ast: AST, current_node: Node, goto_count: dict) -> Optional[Node]:
+    console = Console(force_terminal=True, color_system="auto")
     """Process @goto operation with schema validation support"""
     # Get parameters
     params = current_node.params or {}
@@ -26,6 +28,9 @@ def process_goto(ast: AST, current_node: Node, goto_count: dict) -> Optional[Nod
     if target_node is None:
         raise BlockNotFoundError(f"Block with path '{block_uri}' not found")
         
+    # Print operation for console
+    console.print(f"[light_green]→[/light_green] @goto block: '{block_uri}'")
+
     # Track goto count for infinite loop prevention
     target_key = target_node.key
     goto_count[target_key] = goto_count.get(target_key, 0) + 1
