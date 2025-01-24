@@ -3,7 +3,7 @@ from core.config import Config  # Import Config to access settings
 
 class openaiclient:
     def __init__(self, api_key: str):
-        self.client = OpenAI(api_key=api_key)
+        self.client = OpenAI(api_key=api_key, base_url=Config.base_url)
 
     def llm_call(self, prompt_text: str, operation_params: dict) -> str:
         # Use settings from Config, with default fallbacks

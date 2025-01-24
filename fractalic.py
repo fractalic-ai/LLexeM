@@ -123,6 +123,7 @@ def main():
         Config.TOP_P = provider_settings.get('topP')
         Config.TOP_K = provider_settings.get('topK')
         Config.CONTEXT_SIZE = provider_settings.get('contextSize')
+        Config.base_url = provider_settings.get('base_url')  # Add this line
         
         # Set environment variable for API key
         os.environ[f"{provider.upper()}_API_KEY"] = api_key
