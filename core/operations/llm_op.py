@@ -37,6 +37,10 @@ def process_llm(ast: AST, current_node: Node) -> Optional[Node]:
     prompt = params.get('prompt')
     block_params = params.get('block', {})
 
+    # New optional fields
+    provider = params.get('provider')
+    model = params.get('model')
+
     # Validate at least one of prompt/block is provided
     if not prompt and not block_params:
         raise ValueError("@llm operation requires either 'prompt' or 'block' parameter")
@@ -90,13 +94,15 @@ def process_llm(ast: AST, current_node: Node) -> Optional[Node]:
     prompt_text = "\n\n".join(part.strip() for part in prompt_parts if part.strip())
 
     # Call LLM
-    llm_client = LLMClient(provider=Config.LLM_PROVIDER, api_key=Config.API_KEY)
-    
+    llm_provider = provider if provider else Config.LLM_PROVIDER
+    llm_model = model if model else Config.MODEL
+    llm_client = LLMClient(provider=llm_provider, model=llm_model)
+
     start_time = time.time()
     try:
         with console.status("[cyan] @llm[/cyan] processing...", spinner="dots") as status:
             response = llm_client.llm_call(prompt_text, params)
-        
+
         duration = time.time() - start_time
         mins, secs = divmod(int(duration), 60)
         duration_str = f"{mins}m {secs}s" if mins > 0 else f"{secs}s"
@@ -104,6 +110,7 @@ def process_llm(ast: AST, current_node: Node) -> Optional[Node]:
         
     except Exception as e:
         console.print(f"[bold red]✗ Failed: {str(e)}[/bold red]")
+        console.print(f"[bold red]  Operation content:[/bold red]\n{current_node.content}")
         raise
 
     # Get save-to-file parameter

@@ -13,6 +13,9 @@ import yaml
 import jsonschema
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
+from rich.console import Console
+from rich.panel import Panel
+from rich.syntax import Syntax
 
 # YAML schema (complete schema provided)
 schema_text = r'''
@@ -84,6 +87,12 @@ operations:
         type: string
         x-process: block-path
         description: "Target block where LLM response will be placed"
+      provider:         # <--- Added
+        type: string
+        description: "Optional LLM provider to override the default setting."
+      model:            # <--- Added
+        type: string
+        description: "Optional model to override the default setting."
     anyOf:
       - required: ["prompt"]
       - required: ["block"]
@@ -303,13 +312,12 @@ class SchemaProcessor:
     extension_points: Dict[str, Any]
 
     def validate_operation(self, operation_block: OperationBlock):
+        console = Console()
         operation_name = operation_block.operation
         if operation_name not in self.operations_schema:
             raise ValueError(f"Unknown operation '{operation_name}'")
 
         schema = self.operations_schema[operation_name]
-
-        # Parse the content into parameters
 
         # Remove the first line from operation_block.content
         operation_block_content_no_op = '\n'.join(operation_block.content.split('\n')[1:])
@@ -319,12 +327,36 @@ class SchemaProcessor:
             if params is None:
                 params = {}
         except yaml.YAMLError as e:
+            # Display operation content on YAML parsing error
+            console.print(f"\n[bold red]✗ YAML Parsing Error in operation '{operation_name}':[/bold red]")
+            console.print(
+                Syntax(
+                    operation_block.content.strip(),
+                    "yaml",
+                    line_numbers=True,
+                    theme="monokai",
+                    word_wrap=True,
+                    background_color="default"
+                )
+            )
             raise ValueError(f"YAML parsing error in operation '{operation_name}': {str(e)}")
 
         # Validate against schema before processing
         try:
             jsonschema.validate(instance=params, schema=schema)
         except jsonschema.ValidationError as e:
+            # Display operation content on validation error
+            console.print(f"\n[bold red]✗ Validation Error in operation '{operation_name}':[/bold red]")
+            console.print(
+                Syntax(
+                    operation_block.content.strip(),
+                    "yaml", 
+                    line_numbers=True,
+                    theme="monokai",
+                    word_wrap=True,
+                    background_color="default"
+                )
+            )
             raise ValueError(f"Validation error in operation '{operation_name}': {str(e)}")
 
         # Apply field processors

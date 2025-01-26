@@ -64,7 +64,6 @@ def setup_provider_config(args, settings):
     api_key_masked = mask_key(api_key)
     console.print(f"\n[bold] Provider: [light_green]{provider}[/light_green][/bold]")
     
-    # Check each source and print with checkmark (✓) or cross (✗)
     if args.api_key:
         console.print(f"[light_green]✓[/light_green] API key from arguments: [light_green]{api_key_masked}[/light_green]")
     else:
@@ -80,20 +79,17 @@ def setup_provider_config(args, settings):
     else:
         console.print(f"[dim][red]✗[/red] API key from environment variable {api_key_env_var}[/dim]")
 
-
     if not api_key:
         raise ValueError(f"API key for {provider} must be provided either as an argument, in settings.toml, or through the {api_key_env_var} environment variable.")
     
     return provider, api_key, provider_settings
 
 def main():
+    settings = load_settings()  # Load settings.toml once
     
-    # Load settings
-    settings = load_settings()
     default_provider = settings.get('defaultProvider', 'openai')
     default_operation = settings.get('defaultOperation', 'append')
 
-    # Setup argument parser
     parser = argparse.ArgumentParser(description="Process and run operations on a markdown file.")
     parser.add_argument('input_file', type=str, help='Path to the input markdown file.')
     parser.add_argument('--task_file', type=str, help='Path to the task markdown file.')
@@ -108,31 +104,18 @@ def main():
     args = parser.parse_args()
 
     try:
-        # Setup provider configuration
         provider, api_key, provider_settings = setup_provider_config(args, settings)
 
-        # Configure global settings
         Config.TOML_SETTINGS = settings
         Config.LLM_PROVIDER = provider
         Config.API_KEY = api_key
         Config.DEFAULT_OPERATION = args.operation
 
-        # Set additional provider-specific settings
-        Config.MODEL = provider_settings.get('model')
-        Config.TEMPERATURE = provider_settings.get('temperature')
-        Config.TOP_P = provider_settings.get('topP')
-        Config.TOP_K = provider_settings.get('topK')
-        Config.CONTEXT_SIZE = provider_settings.get('contextSize')
-        Config.base_url = provider_settings.get('base_url')  # Add this line
-        
-        # Set environment variable for API key
         os.environ[f"{provider.upper()}_API_KEY"] = api_key
 
-        # Ensure input file exists
         if not os.path.exists(args.input_file):
             raise FileNotFoundError(f"Input file not found: {args.input_file}")
 
-        # Process task file if provided
         if args.task_file and args.param_input_user_request:
             if not os.path.exists(args.task_file):
                 raise FileNotFoundError(f"Task file not found: {args.task_file}")
@@ -180,8 +163,7 @@ def main():
         filename, line_no, func_name, text = tb[-1]  # Get the last frame (where error originated)
         print(f"[ERROR][Unexpected] {exc_type.__name__} in module {filename}, line {line_no}: {str(e)}")
         traceback.print_exc()
- 
-        #print(f"[ERROR] Unexpected error: {str(e)}")
+
         sys.exit(1)
 
 if __name__ == "__main__":

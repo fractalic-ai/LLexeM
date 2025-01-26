@@ -1,19 +1,22 @@
 from openai import OpenAI
 from core.config import Config  # Import Config to access settings
+from core.utils import load_settings
 
 class openaiclient:
-    def __init__(self, api_key: str):
-        self.client = OpenAI(api_key=api_key, base_url=Config.base_url)
+    def __init__(self, api_key: str, settings: dict = None):
+        self.settings = settings or {}
+        base_url = self.settings.get('base_url', "")
+        self.client = OpenAI(api_key=api_key, base_url=base_url)
 
-    def llm_call(self, prompt_text: str, operation_params: dict) -> str:
-        # Use settings from Config, with default fallbacks
-        model = Config.MODEL or "gpt-4o"
-        temperature = Config.TEMPERATURE or 0.6
-        max_tokens = Config.CONTEXT_SIZE  # Use Config.CONTEXT_SIZE if provided
-        top_p = Config.TOP_P or 1
+    def llm_call(self, prompt_text: str, operation_params: dict = None, model: str = None) -> str:
+        model = model or (self.settings.get('model') or "gpt-4")
+        temperature = self.settings.get('temperature', 0.6)
+        max_tokens = self.settings.get('contextSize', None)
+        top_p = self.settings.get('topP', 1)
 
-        system_prompt = Config.SYSTEM_PROMPT or "You are a helpful assistant."
+        print("DEBUG!!!: OPENAI called with model: ", model)
 
+        system_prompt = self.settings.get('systemPrompt', "You are a helpful assistant.")
         response = self.client.chat.completions.create(
             model=model,
             messages=[

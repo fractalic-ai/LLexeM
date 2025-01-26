@@ -88,7 +88,16 @@ def nodes_to_ast(nodes: Dict[str, Node]) -> AST:
 def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool, 
                           dest_ast: AST, dest_path: str, dest_hierarchy: bool, 
                           operation: OperationType, process_src: bool = True) -> None:
-
+    def print_operation_debug():
+        print(f"""[EXCEPTION] > perform_ast_operation:
+        - src_ast: {src_ast}
+        - src_path: {src_path}
+        - src_hierarchy: {src_hierarchy}  
+        - dest_ast: {dest_ast}
+        - dest_path: {dest_path}
+        - dest_hierarchy: {dest_hierarchy}
+        - operation: {operation}
+        - process_src: {process_src}""")
     # Ensure operation is of type OperationType
     if isinstance(operation, str):
         try:
@@ -100,6 +109,7 @@ def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool,
                 operation = next(op for op in OperationType if op.value == operation)
             except StopIteration:
                 # If no matching operation is found, raise an error
+                print_operation_debug()
                 raise ValueError(f"Unknown operation type: {operation}")
 
     # Extract source nodes
@@ -113,6 +123,7 @@ def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool,
     # Validate that the source AST is not empty
     if process_src:
         if  not source_ast.parser.nodes:
+            print_operation_debug()
             raise ValueError(f"Source AST is empty for path: {src_path}")
 
     # Extract destination nodes
@@ -130,6 +141,7 @@ def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool,
         
         if not dest_node:
             # If neither ID nor key matched, raise an error
+            print_operation_debug()
             raise BlockNotFoundError(f"Node with id or key '{dest_path}' not found.")
         
         # Create a single-node AST for consistency with path-based lookup
@@ -139,6 +151,7 @@ def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool,
 
     # Validate that the destination AST is not empty
     if not dest_node_ast.parser.nodes:
+        print_operation_debug()
         raise BlockNotFoundError(f"No destination nodes found for path: {dest_path}")
 
     # Perform the requested operation
@@ -176,6 +189,7 @@ def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool,
         else:
             # Non-hierarchical replace: Replace single node
             if not dest_node_ast.parser.tail:
+                print_operation_debug()
                 raise BlockNotFoundError(f"Destination AST is empty for path: {dest_path}")
             # Use existing method to replace the node with the entire source AST
             dest_ast.replace_node_with_ast(dest_node_ast.parser.tail.key, source_ast)
@@ -183,6 +197,7 @@ def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool,
     elif operation == OperationType.PREPEND:
         # Prepend: Insert source AST before the destination node
         if not dest_node_ast.parser.head:
+            print_operation_debug()
             raise BlockNotFoundError(f"Destination AST is empty for path: {dest_path}")
         # Use existing method to prepend the entire source AST to the destination node
         dest_ast.prepend_node_with_ast(dest_node_ast.parser.head.key, source_ast)
@@ -190,12 +205,14 @@ def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool,
     elif operation == OperationType.APPEND:
         # Append: Insert source AST after the destination node
         if not dest_node_ast.parser.tail:
+            print_operation_debug()
             raise BlockNotFoundError(f"Destination AST is empty for path: {dest_path}")
         # Use existing method to append the entire source AST to the destination node
         dest_ast.append_node_with_ast(dest_node_ast.parser.tail.key, source_ast)
     
     else:
         # If the operation is not recognized, raise an error
+        print_operation_debug()
         raise ValueError(f"Unknown operation type: {operation}")
 
     # Ensure the integrity of the doubly-linked list structure
@@ -208,6 +225,7 @@ def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool,
     # Validate the resulting AST
     if not dest_ast.parser.head or not dest_ast.parser.tail or len(dest_ast.parser.nodes) == 0:
         # Ensure the AST has a head, tail, and is not empty
+        print_operation_debug()
         raise ValueError("Resulting AST is invalid: missing head, tail, or empty")
 
     # Output debug information

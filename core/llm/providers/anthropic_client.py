@@ -19,7 +19,8 @@ SUPPORTED_MEDIA_TYPES = {
 MAX_IMAGE_SIZE = 20 * 1024 * 1024  # 20MB in bytes
 
 class anthropicclient:
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, settings: dict = None):
+        self.settings = settings or {}
         self.client = anthropic.Anthropic(api_key=api_key)
     
     def _validate_image(self, image_path: Path) -> tuple[str, bytes]:
@@ -140,16 +141,16 @@ class anthropicclient:
             console.print(f"[bold red]✗ Error:[/bold red] {str(e)}")
             raise
 
-    def llm_call(self, prompt_text: str, operation_params: dict) -> str:
-        model = Config.MODEL or "claude-3-5-sonnet-20241022"
-        max_tokens = Config.CONTEXT_SIZE or 8192
-        temperature = Config.TEMPERATURE or 0.6
-        system_prompt = Config.SYSTEM_PROMPT or ""
+    def llm_call(self, prompt_text: str, operation_params: dict = None, model: str = None) -> str:
+        model = model or self.settings.get('model', "claude-3-5-sonnet-20241022")
+        max_tokens = self.settings.get('contextSize', 8192)
+        temperature = self.settings.get('temperature', 0.6)
+        system_prompt = self.settings.get('systemPrompt', "")
 
         # Prepare content array
         content = []
-        
-        # Add images if media field exists in operation params
+
+        # Add media if exists
         if operation_params and 'media' in operation_params:
             for media_path in operation_params['media']:
                 content.append(self._load_media(media_path))
@@ -159,6 +160,8 @@ class anthropicclient:
             "type": "text",
             "text": prompt_text
         })
+
+        print("DEBUG!!!: ANTHROPIC called with model: ", model)
 
         # Make API call
         response = self.client.messages.create(
