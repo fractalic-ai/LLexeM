@@ -10,7 +10,7 @@ class openaiclient:
 
     def llm_call(self, prompt_text: str, operation_params: dict = None, model: str = None) -> str:
         model = model or (self.settings.get('model') or "gpt-4")
-        temperature = self.settings.get('temperature', 0.6)
+        temperature = operation_params.get('temperature', self.settings.get('temperature', 0.0))
         max_tokens = self.settings.get('contextSize', None)
         top_p = self.settings.get('topP', 1)
 

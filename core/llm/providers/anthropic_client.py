@@ -144,7 +144,7 @@ class anthropicclient:
     def llm_call(self, prompt_text: str, operation_params: dict = None, model: str = None) -> str:
         model = model or self.settings.get('model', "claude-3-5-sonnet-20241022")
         max_tokens = self.settings.get('contextSize', 8192)
-        temperature = self.settings.get('temperature', 0.6)
+        temperature = operation_params.get('temperature', self.settings.get('temperature', 0.0))
         system_prompt = self.settings.get('systemPrompt', "")
 
         # Prepare content array

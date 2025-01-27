@@ -5,10 +5,10 @@ class groqclient:
     def __init__(self, api_key: str):
         self.client = Groq(api_key=api_key)
 
-    def llm_call(self, prompt_text: str) -> str:
+    def llm_call(self, prompt_text: str, operation_params: dict = None) -> str:
         # Use settings from Config, with default fallbacks
         model = Config.MODEL or "llama-3.1-70b-versatile"
-        temperature = Config.TEMPERATURE or 0.6
+        temperature = operation_params.get('temperature', Config.TEMPERATURE or 0.0)
         max_tokens = Config.CONTEXT_SIZE or 4096
         top_p = Config.TOP_P or 1
         system_prompt = Config.SYSTEM_PROMPT or "You are a helpful assistant."
