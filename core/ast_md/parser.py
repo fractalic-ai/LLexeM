@@ -7,6 +7,7 @@ import re
 from typing import Dict, Optional, Union
 from core.ast_md.node import Node, NodeType
 # from core.ast_md.operation_parser import OperationParser
+import unicodedata
 
 import re
 import yaml
@@ -575,7 +576,13 @@ class Parser:
         self.nodes: Dict[str, Node] = {}
         self.head: Optional[Node] = None
         self.tail: Optional[Node] = None
+
         self.schema_text = schema_text  # Ensure schema_text is defined
+    def generate_id_from_title(self, title: str) -> str:
+        # Normalize the title, remove non-alphanumeric characters, and convert to kebab-case
+        normalized_title = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').decode('ascii')
+        kebab_case_id = re.sub(r'[^a-zA-Z0-9]+', '-', normalized_title).strip('-').lower()
+        return kebab_case_id
 
     def parse(self, text: str) -> Dict[str, Node]:
         blocks = parse_document(text, self.schema_text)
@@ -583,11 +590,12 @@ class Parser:
 
         for block in blocks:
             if isinstance(block, HeadingBlock):
+                node_id = block.id or self.generate_id_from_title(block.title)
                 node = Node(
                     type=NodeType.HEADING,
                     name=block.title,
                     level=block.level,
-                    id=block.id,
+                    id=node_id,
                     indent=block.level * 4,
                     content= block.content.strip()
                 )
