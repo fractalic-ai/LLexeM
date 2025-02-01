@@ -13,27 +13,20 @@ Fractalic combines Markdown and YAML to create agentic AI systems using straight
 ## Key Features
 
 🧬 **Structured Knowledge & Precision** - Use Markdown heading blocks to form a semantic tree. Reference specific nodes or branches with a simple, path-like syntax.
+
 🧠 **Dynamic Knowledge context** - Each operation can modify specific nodes and branches, allowing your system to evolve dynamically.
     
 🤖 **Agentic ready** - The module system (`@run`) isolates execution contexts. It passes parameters and returns results as semantic blocks, enabling both specialized agents and reusable workflows with clear inputs and outputs.
 
 🪄 **Runtime Instruction Generation** Generate instructions dynamically during execution, or delegate this task to the LLM. This enables conditional workflows and supports autonomous agent behavior.
     
-- 🤝 **Multi-Model Collaboration**
+🤝 **Multi-Model Collaboration** - You can explicitly specify LLM provider, model, and parameters (e.g., temperature) for each call.
     
-    You can explicitly specify LLM provider, model, and parameters (e.g., temperature) for each call.
+🖥️ **Shell Integration** - Execute CLI tools and scripts (Python, curl, Docker, Git, etc.) and automatically update the knowledge context with the results.
     
-- 🖥️ **Shell Integration**
+📝 **Transparent Versioning** - Automatically track every context change and decision using Git-native version control. 
     
-    Execute CLI tools and scripts (Python, curl, Docker, Git, etc.) and automatically update the knowledge context with the results.
-    
-- 📝 **Transparent Versioning**
-    
-    Automatically track every context change and decision using Git-native version control. 
-    
-- 📒 **User Interface**
-    
-    A notebook-like UI provides straightforward parameter selection and operation management.
+📒 **User Interface** - A notebook-like UI provides straightforward parameter selection and operation management.
 
 # fractalic updating in progress
 Hello, repo updating is in progress. Please wait for a while.
