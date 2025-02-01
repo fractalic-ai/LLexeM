@@ -12,17 +12,15 @@ Fractalic combines Markdown and YAML to create agentic AI systems using straight
 
 ## Key Features
 
-🧬 **Structured Knowledge & Precision** - Use Markdown heading blocks to form a semantic tree. Reference specific nodes or branches with a simple, path-like syntax.
+**Structured Knowledge & Precision** 🧬 - Use Markdown heading blocks to form a semantic tree. Reference specific nodes or branches with a simple, path-like syntax.
     
-🧠 **Dynamic Knowledge context** - Each operation can modify specific nodes and branches, allowing your system to evolve dynamically.
+**Dynamic Knowledge context** 🧠 - Each operation can modify specific nodes and branches, allowing your system to evolve dynamically.
     
-- 🤖 **Agentic ready**
-    
-    The module system (`@run`) isolates execution contexts. It passes parameters and returns results as semantic blocks, enabling both specialized agents and reusable workflows with clear inputs and outputs.
-    
-- **🪄 Runtime Instruction Generation**
-    
-    Generate instructions dynamically during execution, or delegate this task to the LLM. This enables conditional workflows and supports autonomous agent behavior.
+🤖 **Agentic ready**
+The module system (`@run`) isolates execution contexts. It passes parameters and returns results as semantic blocks, enabling both specialized agents and reusable workflows with clear inputs and outputs.
+
+**Runtime Instruction Generation** 🪄
+Generate instructions dynamically during execution, or delegate this task to the LLM. This enables conditional workflows and supports autonomous agent behavior.
     
 - 🤝 **Multi-Model Collaboration**
     
