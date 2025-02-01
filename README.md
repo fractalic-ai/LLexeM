@@ -1,8 +1,8 @@
-# Fractalic ✨
+# Fractalic
 
 Program AI in plain language (any language). That's it.
 
-# Vision 🚀
+## Vision 🚀
 
 Modern AI workflows shouldn’t be harder than they already are. We have powerful LLMs, yet we still end up wrestling with Python scripts and tangled spaghetti-like node-based editors. **Fractalic** aims to fix this by letting you build AI systems as naturally as writing a simple doc.
 
@@ -12,13 +12,9 @@ Fractalic combines Markdown and YAML to create agentic AI systems using straight
 
 ## Key Features
 
-- 🧬 **Structured Knowledge & Precision**
+🧬 **Structured Knowledge & Precision** - Use Markdown heading blocks to form a semantic tree. Reference specific nodes or branches with a simple, path-like syntax.
     
-    Use Markdown heading blocks to form a semantic tree. Reference specific nodes or branches with a simple, path-like syntax.
-    
-- 🧠 **Dynamic Knowledge context**
-    
-    Each operation can modify specific nodes and branches, allowing your system to evolve dynamically.
+🧠 **Dynamic Knowledge context** - Each operation can modify specific nodes and branches, allowing your system to evolve dynamically.
     
 - 🤖 **Agentic ready**
     
@@ -43,7 +39,7 @@ Fractalic combines Markdown and YAML to create agentic AI systems using straight
 - 📒 **User Interface**
     
     A notebook-like UI provides straightforward parameter selection and operation management.
-    
+
 # fractalic updating in progress
 Hello, repo updating is in progress. Please wait for a while.
 
