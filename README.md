@@ -54,6 +54,12 @@ In this example, we define text blocks and run LLM generations sequentially. Key
 
 5. Temperature can be adjusted per operation (global default is 0.0, recommended for prototyping workflows and processes)
 
+## Quick intro 1
+![alt text](<docs/images/slide_02.png>)
+
+## Quick intro 2
+![alt text](<docs/images/slide_03.png>)
+
 
 
 ## Operations list
@@ -67,12 +73,6 @@ In this example, we define text blocks and run LLM generations sequentially. Key
 
 @goto: Conditional flow control
 
-
-## Quick intro 1
-![alt text](<docs/images/slide_02.png>)
-
-## Quick intro 2
-![alt text](<docs/images/slide_03.png>)
 
 
 
