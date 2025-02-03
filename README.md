@@ -54,7 +54,9 @@ In this example, we define text blocks and run LLM generations sequentially. Key
 
 5. Temperature can be adjusted per operation (global default is 0.0, recommended for prototyping workflows and processes)
 
-1. Operations
+
+
+## Operations list
 @llm: AI-powered content generation
 
 @shell: Execute system commands
