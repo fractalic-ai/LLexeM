@@ -28,8 +28,18 @@ Fractalic combines Markdown and YAML to create agentic AI systems using straight
     
 📒 **User Interface** - A notebook-like UI provides straightforward parameter selection and operation management.
 
-# Quick intro
+# Quick intro 0
+![alt text](<docs/images/slide_01.png>)
+
+# Quick intro 1
+![alt text](<docs/images/slide_02.png>)
+
+# Quick intro 2
+![alt text](<docs/images/slide_03.png>)
+
+# Quick intro 3
 ![alt text](<docs/images/fractalic-demo-0001.png>)
+
 
 # fractalic updating in progress
 Hello, repo updating is in progress. Please wait for a while.
