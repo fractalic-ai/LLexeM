@@ -92,25 +92,28 @@ Operations:
 @run: Execute sub-documents
 
 @goto: Conditional flow control
----
 
-Operation Field Matrix
-✓ = Supported | – = Not Applicable
-S = Single Value | A = Array Accepted
 
-Field	@llm	@import	@shell	@run	@return	@goto	Value Type
-Core Fields							
-to	✓	✓	✓	✓	–	–	S
-mode	✓	✓	✓	✓	–	–	S
-block	✓(A)	✓(S)	–	✓(A)	✓(A)	✓(S)	S/A*
-file	–	✓(S)	–	✓(S)	–	–	S
-prompt	✓(S)	–	✓(S)	✓(S)	✓(S)	–	S
-Specialized Fields							
-provider	✓(S)	–	–	–	–	–	S
-model	✓(S)	–	–	–	–	–	S
-save-to-file	✓(S)	–	–	–	–	–	S
-media	✓(A)	–	–	–	–	–	A
-use-header	✓(S)	–	✓(S)	✓(S)	✓(S)	–	S
+### Operation Field Matrix  
+**✓ = Supported** | **– = Not Applicable**  
+**S** = Single Value | **A** = Array Accepted  
+
+| Field               | @llm | @import | @shell | @run  | @return | @goto | Value Type |
+|---------------------|------|---------|--------|-------|---------|-------|------------|
+| **Core Fields**     |      |         |        |       |         |       |            |
+| `to`                | ✓    | ✓       | ✓      | ✓     | –       | –     | S          |
+| `mode`              | ✓    | ✓       | ✓      | ✓     | –       | –     | S          |
+| `block`             | ✓(A) | ✓(S)    | –      | ✓(A)  | ✓(A)    | ✓(S)  | S/A*       |
+| `file`              | –    | ✓(S)    | –      | ✓(S)  | –       | –     | S          |
+| `prompt`            | ✓(S) | –       | ✓(S)   | ✓(S)  | ✓(S)    | –     | S          |
+
+| **Specialized Fields** |      |         |        |       |         |       |            |
+|------------------------|------|---------|--------|-------|---------|-------|------------|
+| `provider`             | ✓(S) | –       | –      | –     | –       | –     | S          |
+| `model`                | ✓(S) | –       | –      | –     | –       | –     | S          |
+| `save-to-file`         | ✓(S) | –       | –      | –     | –       | –     | S          |
+| `media`                | ✓(A) | –       | –      | –     | –       | –     | A          |
+| `use-header`           | ✓(S) | –       | ✓(S)   | ✓(S)  | ✓(S)    | –     | S          |
 
 
 
@@ -181,3 +184,6 @@ Required for UI to work. Please run the following command in the terminal.
 
 # Settings
 First time you run the UI, settings.toml would be created required for parser (at least while working from UI, if you are using it headless from CLI - you can use script CLI params). You should select default provider and enter env keys for external providers (repicate, tavily and etc).
+
+
+
