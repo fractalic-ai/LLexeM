@@ -52,15 +52,34 @@ In this example, we define text blocks and run LLM generations sequentially. Key
 
 4. The blocks parameter provides access to all context blocks, including those appearing later in the file, as the entire file loads into context during execution
 
-5. Temperature can be adjusted per operation (global default is 0.0, recommended for prototyping workflows and processes)
+5. The "/*" syntax is used to select entire branch of blocks - both parent (#) and child (##) blocks at once.
 
-## Quick intro 1
+6. Temperature can be adjusted per operation (global default is 0.0, recommended for prototyping workflows and processes)
+
 ![alt text](<docs/images/slide_02.png>)
 
-## Quick intro 2
+As shown in the example above, the @shell operation provides LLM access to the external environment through the operating system's command interpreter. This enables universal integration capabilities - any tool, API, or framework accessible via command line becomes available to LLM, from simple curl requests to complex Python scripts and Docker containers.
+Key features:
+
+* Environment variables and API keys can be configured in settings.toml for each @shell session, with additional UI configuration options
+* Full stdin output available in the execution context
+* YAML syntax support for multiline commands (using |, > and other operators)
+* The use-header parameter allows customizing block headers, identifiers, and nesting levels for flexible tree structure organization
+
 ![alt text](<docs/images/slide_03.png>)
 
+The system enables modular, reusable workflows and agents that execute in isolated contexts with parameter passing and result return capabilities.
 
+The example shows:
+- Left: execution context diff of main.md
+- Right: context of shell-agent.md (in agents folder), which generates zsh/bash commands based on user input, stores them in its context, executes, and returns results to the main module. Relative paths are supported for all files.
+
+Operations:
+1. `@run`: passes prompts, blocks, and context branches to the agent's context, concatenating them at the start
+2. `@llm`: generates executable operations with parameter semantics. Uses `use-header: none` to prevent markdown header output for proper interpretation. Generated commands can use their own headers, referenced in `@return`
+3. `@return`: outputs specified blocks by identifiers (with prompt parameter, returns literal constant)
+
+Important: Every module/agent must return a value for workflow semantic completeness. Missing returns cause unpredictable results (validation coming in future releases).
 
 ## Operations list
 @llm: AI-powered content generation
