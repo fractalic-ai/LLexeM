@@ -1,5 +1,6 @@
 # Fractalic
-License: MIT
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Program AI in plain language (any language). That's it.
 
 ## Vision 🚀
@@ -95,27 +96,23 @@ Operations:
 
 
 ### Operation Field Matrix  
-**✓ = Supported** | **– = Not Applicable**  
-**S** = Single Value | **A** = Array Accepted  
+**✓ = Supported** | **– = Not Applicable** | **A** = Array Accepted  
 
-| Field               | @llm | @import | @shell | @run  | @return | @goto | Value Type |
-|---------------------|------|---------|--------|-------|---------|-------|------------|
-| **Core Fields**     |      |         |        |       |         |       |            |
-| `to`                | ✓    | ✓       | ✓      | ✓     | –       | –     | S          |
-| `mode`              | ✓    | ✓       | ✓      | ✓     | –       | –     | S          |
-| `block`             | ✓(A) | ✓(S)    | –      | ✓(A)  | ✓(A)    | ✓(S)  | S/A*       |
-| `file`              | –    | ✓(S)    | –      | ✓(S)  | –       | –     | S          |
-| `prompt`            | ✓(S) | –       | ✓(S)   | ✓(S)  | ✓(S)    | –     | S          |
-
-| **Specialized Fields** |      |         |        |       |         |       |            |
-|------------------------|------|---------|--------|-------|---------|-------|------------|
-| `provider`             | ✓(S) | –       | –      | –     | –       | –     | S          |
-| `model`                | ✓(S) | –       | –      | –     | –       | –     | S          |
-| `save-to-file`         | ✓(S) | –       | –      | –     | –       | –     | S          |
-| `media`                | ✓(A) | –       | –      | –     | –       | –     | A          |
-| `use-header`           | ✓(S) | –       | ✓(S)   | ✓(S)  | ✓(S)    | –     | S          |
-
-
+| Field               | @llm | @import | @shell | @run  | @return | @goto | 
+|---------------------|------|---------|--------|-------|---------|-------|
+| **Core Fields**     |      |         |        |       |         |       |
+| `to`                | ✓    | ✓       | ✓      | ✓     | –       | –     | 
+| `mode`              | ✓    | ✓       | ✓      | ✓     | –       | –     | 
+| `block`             | ✓(A) | ✓       | –      | ✓(A)  | ✓(A)    | ✓     | 
+| `file`              | –    | ✓       | –      | ✓     | –       | –     |
+| `prompt`            | ✓    | –       | ✓      | ✓     | ✓       | –     |
+| `use-header`        | ✓    | –       | ✓      | ✓     | ✓       | –     |
+| **Specialized**     |      |         |        |       |         |       |
+|---------------------|------|---------|--------|-------|---------|-------|
+| `provider`          | ✓    | –       | –      | –     | –       | –     |
+| `model`             | ✓    | –       | –      | –     | –       | –     |
+| `save-to-file`      | ✓    | –       | –      | –     | –       | –     |
+| `media`             | ✓(A) | –       | –      | –     | –       | –     |
 
 
 
