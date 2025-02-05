@@ -63,7 +63,7 @@ Key features:
 - Environment variables and API keys can be configured in `settings.toml` for each `@shell` session
 - Full stdin output available in the execution context
 - YAML syntax support for multiline commands (using `|`, `>` and other operators)
-- The `use-header` parameter allows customizing block headers, identifiers, and nesting levels for flexible tree structure organization
+- The `use-header` parameter allows customizing block headers, identifiers, and nesting levels for flexible tree structure organization. Please be aware that YAML recognizes '#' as a comment, so it should be escaped with quotes or backslashes if used in the field itself.
 
 ### Example 3
 ![alt text](<docs/images/slide_03.png>)
@@ -82,7 +82,268 @@ Operations:
 ⚠️ Important: Every module/agent must return a value for workflow semantic completeness. Missing returns cause unpredictable results (validation coming in future releases).
 
 ---
+# Operations Overview
 
+## Overview
+
+The system maintains an internal "execution context" representing the document structure. Operations modify this context through insertion, replacement, or appending of content.
+
+## Operation Block Structure
+
+An operation block begins with an operation identifier line:
+
+```
+@operation_name
+```
+
+This is followed by a YAML section containing the operation's parameters.
+
+## Operations Reference
+
+### @import
+
+**Purpose**: Import content from another file or from a specific section within that file.
+
+| Field | Required | Type | Description | Default |
+|-------|----------|------|-------------|---------|
+| file | Yes | String | File path to import from | - |
+| block | No | String | Reference to specific section within source file. Supports nested notation with trailing `*` | - |
+| mode | No | String | How content is merged (`"append"`, `"prepend"`, `"replace"`) | `"append"` |
+| to | No | String | Target block reference in current document | - |
+
+**Execution Logic**:
+1. System reads the specified file
+2. If block reference is provided, extracts that portion
+   - Using `/*` after a block reference includes all nested blocks
+3. Inserts or replaces content at target location according to chosen mode
+4. If no target specified, content is inserted at current position
+
+**Examples**:
+```yaml
+# Import entire file
+@import
+file: "docs/other.md"
+
+# Import specific section with nested blocks
+@import
+file: "docs/other.md"
+block: "section/subsection/*"
+mode: "append"
+to: "targetSection"
+
+# Import single block and replace target
+@import
+file: "templates/header.md"
+block: "main-header"
+mode: "replace"
+to: "document-header"
+```
+
+### @llm
+
+**Purpose**: Send prompts to a language model and insert responses.
+
+| Field | Required | Type | Description | Default |
+|-------|----------|------|-------------|---------|
+| prompt | See note | String | Literal text string for input prompt | - |
+| block | See note | String/Array | Reference(s) to blocks for prompt content | - |
+| media | No | Array | File paths for additional media context | - |
+| save-to-file | No | String | File path to save raw response | - |
+| use-header | No | String | Header for LLM response | `# LLM Response block` |
+| mode | No | String | Merge mode (`"append"`, `"prepend"`, `"replace"`) | Configuration default |
+| to | No | String | Target block reference | - |
+| provider | No | String | Override for language model provider | Configuration default |
+| model | No | String | Override for specific model | Configuration default |
+
+Note: Either `prompt` or `block` must be provided.
+
+**Execution Logic**:
+1. System assembles prompt by combining:
+   - Referenced block contents (if block specified)
+   - Literal prompt text (if provided)
+   - Media context (if provided)
+2. Sends assembled prompt to language model
+3. Captures response
+4. Optionally saves raw response to file
+5. Adds header (unless set to "none")
+6. Merges response into document at specified location
+
+**Examples**:
+```yaml
+# Simple prompt with default settings
+@llm
+prompt: "Generate a summary of the following text:"
+block: "input-text"
+
+# Complex prompt with multiple inputs and specific target
+@llm
+prompt: "Compare and contrast the following sections:"
+block: ["section1/*", "section2/*"]
+media: ["context.png", "diagram.svg"]
+use-header: "# Comparison Analysis"
+mode: "replace"
+to: "analysis-section"
+
+# Save response to file with custom model
+@llm
+prompt: "Generate technical documentation"
+block: "specifications"
+save-to-file: "output/docs.md"
+provider: "custom-provider"
+model: "technical-writer-v2"
+```
+
+### @shell
+
+**Purpose**: Execute shell commands and capture output.
+
+| Field | Required | Type | Description | Default |
+|-------|----------|------|-------------|---------|
+| prompt | Yes | String | Shell command to execute | - |
+| use-header | No | String | Header for command output | `# OS Shell Tool response block` |
+| mode | No | String | Merge mode (`"append"`, `"prepend"`, `"replace"`) | Configuration default |
+| to | No | String | Target block reference | - |
+
+**Execution Logic**:
+1. System sanitizes command string
+2. Executes command in shell environment
+3. Captures real-time output
+4. Adds header (unless set to "none")
+5. Merges output into document at specified location
+
+**Examples**:
+```yaml
+# Simple command execution
+@shell
+prompt: "ls -la"
+
+# Process file and insert at specific location
+@shell
+prompt: "cat data.txt | grep 'ERROR' | sort -u"
+use-header: "# Error Log Summary"
+mode: "prepend"
+to: "error-section"
+
+# Run script and replace content
+@shell
+prompt: "./generate_report.sh --format=markdown"
+use-header: "none"
+mode: "replace"
+to: "report-content"
+```
+
+### @return
+
+**Purpose**: Produce final output and end current workflow.
+
+| Field | Required | Type | Description | Default |
+|-------|----------|------|-------------|---------|
+| prompt | See note | String | Literal text to return | - |
+| block | See note | String/Array | Reference(s) to blocks to return | - |
+| use-header | No | String | Header for returned content | `# Return block` |
+
+Note: Either `prompt` or `block` must be provided.
+
+**Execution Logic**:
+1. System gathers content from:
+   - Referenced blocks (if specified)
+   - Literal prompt text (if provided)
+2. Combines all content
+3. Adds header (unless set to "none")
+4. Returns final block as workflow output
+5. Terminates workflow execution
+
+**Examples**:
+```yaml
+# Return single block
+@return
+block: "final-output"
+
+# Return multiple blocks with custom header
+@return
+block: ["summary/*", "conclusions"]
+use-header: "# Final Report"
+
+# Return literal text
+@return
+prompt: "Process completed successfully"
+use-header: "none"
+```
+
+### @run
+
+**Purpose**: Execute another markdown file as a workflow.
+
+| Field | Required | Type | Description | Default |
+|-------|----------|------|-------------|---------|
+| file | Yes | String | Path to markdown file to execute | - |
+| prompt | No | String | Literal text input for workflow | - |
+| block | No | String/Array | Reference(s) to blocks for input | - |
+| use-header | No | String | Header for workflow output | - |
+| mode | No | String | Merge mode (`"append"`, `"prepend"`, `"replace"`) | Configuration default |
+| to | No | String | Target block reference | - |
+
+**Execution Logic**:
+1. System loads specified markdown file
+2. Assembles input from:
+   - Referenced blocks (if specified)
+   - Literal prompt text (if provided)
+3. Executes file as separate workflow with assembled input
+4. Captures workflow output
+5. Adds header (if specified)
+6. Merges results into current document at target location
+
+**Examples**:
+```yaml
+# Simple workflow execution
+@run
+file: "workflows/process.md"
+
+# Run workflow with input and specific target
+@run
+file: "workflows/analyze.md"
+block: "data-section/*"
+mode: "replace"
+to: "analysis-results"
+
+# Complex workflow with multiple inputs
+@run
+file: "workflows/compare.md"
+prompt: "Compare performance metrics"
+block: ["metrics-2023/*", "metrics-2024/*"]
+use-header: "# Comparison Results"
+mode: "append"
+to: "reports"
+```
+
+## Execution Context
+
+The system processes documents by maintaining an Abstract Syntax Tree (AST) that represents the document structure. Operations modify this AST through three primary actions:
+
+- **Append**: Add new content after the target
+- **Prepend**: Insert new content before the target
+- **Replace**: Completely replace target content
+
+Each operation:
+1. Gathers input (from files, prompts, or command output)
+2. Merges content into the document based on target reference and mode
+3. Updates the execution context accordingly
+
+The document evolves incrementally as each operation is processed, building toward the final output.
+
+## Block References
+
+Block references can use several special notations:
+- Simple reference: `"section-name"`
+- Nested reference: `"parent/child"`
+- Wildcard nested: `"section/*"` (includes all nested blocks)
+- Multiple blocks: `["block1", "block2/nested", "section3/*"]`
+
+## Special Values
+
+For any operation that accepts a `use-header` parameter, the special value `"none"` (case-insensitive) can be used to omit the header entirely.
+
+---
 ## Operations list
 @llm: AI-powered content generation
 
