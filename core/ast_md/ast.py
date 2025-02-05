@@ -88,6 +88,11 @@ def nodes_to_ast(nodes: Dict[str, Node]) -> AST:
 def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool, 
                           dest_ast: AST, dest_path: str, dest_hierarchy: bool, 
                           operation: OperationType, process_src: bool = True) -> None:
+    #print(f"\n[DEBUG] perform_ast_operation:")
+    #print(f"- Operation: {operation}")
+    #print(f"- Dest path: {dest_path}")
+    #print(f"- Dest hierarchy: {dest_hierarchy}")
+
     def print_operation_debug():
         print(f"""[EXCEPTION] > perform_ast_operation:
         - src_ast: {src_ast}
@@ -156,34 +161,54 @@ def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool,
 
     # Perform the requested operation
     if operation == OperationType.REPLACE:
+        #print(f"- Replace operation with hierarchy={dest_hierarchy}")
+        #print(f"- Destination nodes: {[n.id for n in dest_node_ast.parser.nodes.values()]}")
+        #print(f"- Source nodes: {[n.id for n in source_ast.parser.nodes.values()]}")
+        
         if dest_hierarchy:
-            # Hierarchical replace: Replace entire subtree
-            # Identify the nodes before and after the replaced subtree
+            base_level = dest_node_ast.parser.head.level
+            to_remove = set()
+            
+            # Modified collection logic
+            current = dest_node_ast.parser.head
+            while current:
+                if current.level < base_level:
+                    break
+                if current.level == base_level and current != dest_node_ast.parser.head:
+                    break
+                if current.level >= base_level:
+                    to_remove.add(current.key)
+                    #print(f"  Adding to remove: {current.id} (level={current.level})")
+                current = current.next
+
+            # Find preceding and following nodes
             preceding_node = dest_node_ast.parser.head.prev
-            following_node = dest_node_ast.parser.tail.next
+            following_node = None
+            current = dest_node_ast.parser.head
+            while current:
+                if current.level <= base_level and current.key not in to_remove:
+                    following_node = current
+                    break
+                current = current.next
 
-            # Remove old nodes from the destination AST
-            for key in dest_node_ast.parser.nodes:
-                del dest_ast.parser.nodes[key]
+            # Remove old nodes
+            for key in to_remove:
+                if key in dest_ast.parser.nodes:
+                    del dest_ast.parser.nodes[key]
 
-            # Insert new nodes from source AST into destination AST
+            # Insert new nodes and fix links
             dest_ast.parser.nodes.update(source_ast.parser.nodes)
 
-            # Update links to maintain the AST structure
             if preceding_node:
-                # Connect preceding node to the start of the new subtree
                 preceding_node.next = source_ast.parser.head
                 source_ast.parser.head.prev = preceding_node
             else:
-                # If no preceding node, update the AST head
                 dest_ast.parser.head = source_ast.parser.head
 
             if following_node:
-                # Connect the end of the new subtree to the following node
-                following_node.prev = source_ast.parser.tail
                 source_ast.parser.tail.next = following_node
+                following_node.prev = source_ast.parser.tail
             else:
-                # If no following node, update the AST tail
                 dest_ast.parser.tail = source_ast.parser.tail
 
         else:
@@ -203,12 +228,43 @@ def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool,
         dest_ast.prepend_node_with_ast(dest_node_ast.parser.head.key, source_ast)
 
     elif operation == OperationType.APPEND:
-        # Append: Insert source AST after the destination node
         if not dest_node_ast.parser.tail:
             print_operation_debug()
             raise BlockNotFoundError(f"Destination AST is empty for path: {dest_path}")
-        # Use existing method to append the entire source AST to the destination node
-        dest_ast.append_node_with_ast(dest_node_ast.parser.tail.key, source_ast)
+
+        if dest_hierarchy:
+            # Find last node in branch
+            base_level = dest_node_ast.parser.head.level
+            last_branch_node = dest_node_ast.parser.head
+            current = dest_node_ast.parser.head.next
+            
+            while current:
+                if current.level <= base_level:
+                    break
+                if current.type != NodeType.OPERATION:
+                    last_branch_node = current
+                current = current.next
+
+            # print(f"  Appending after last branch node: {last_branch_node.id}")
+            
+            # Insert new nodes after last_branch_node
+            following_node = last_branch_node.next
+            
+            # Update links
+            last_branch_node.next = source_ast.parser.head
+            source_ast.parser.head.prev = last_branch_node
+            
+            if following_node:
+                source_ast.parser.tail.next = following_node
+                following_node.prev = source_ast.parser.tail
+            else:
+                dest_ast.parser.tail = source_ast.parser.tail
+
+            # Update nodes dictionary
+            dest_ast.parser.nodes.update(source_ast.parser.nodes)
+        else:
+            # Non-hierarchical append: use existing method
+            dest_ast.append_node_with_ast(dest_node_ast.parser.tail.key, source_ast)
     
     else:
         # If the operation is not recognized, raise an error
@@ -232,31 +288,39 @@ def perform_ast_operation(src_ast: AST, src_path: str, src_hierarchy: bool,
     #print(f"perform_ast_operation completed. Operation: {operation}, Destination path: {dest_path}")
 
 def _get_ast_part(ast: AST, starting_node: Node, use_hierarchy: bool) -> AST:
+    #print(f"\n[DEBUG] _get_ast_part:")
+    #print(f"- Starting node: {starting_node.id} (level={starting_node.level})")
+    #print(f"- Use hierarchy: {use_hierarchy}")
+    
     new_ast = AST("")
     result_nodes = {}
-    current_node = starting_node
     base_level = starting_node.level
-
-    while current_node:
-        # Skip operation blocks
-        if current_node.type == NodeType.OPERATION:
+    
+    # Always include starting node
+    result_nodes[starting_node.key] = copy.deepcopy(starting_node)
+    
+    if use_hierarchy:
+        current_node = starting_node.next
+        while current_node:
+            #print(f"  Examining node: {current_node.id} (level={current_node.level}, base={base_level})")
+            
+            if current_node.level <= base_level:
+                #print(f"  -> Stopping: found same/higher level")
+                break
+            
+            if current_node.type != NodeType.OPERATION:
+                result_nodes[current_node.key] = copy.deepcopy(current_node)
+                #print(f"  -> Including child: {current_node.id}")
+            
             current_node = current_node.next
-            continue
-
-        if current_node == starting_node:
-            result_nodes[current_node.key] = copy.deepcopy(current_node)
-        elif use_hierarchy and current_node.level > base_level:
-            result_nodes[current_node.key] = copy.deepcopy(current_node)
-        else:
-            break
-
-        current_node = current_node.next
-
+    
+    #print(f"Collected nodes: {[node.id for node in result_nodes.values()]}")
+    
     new_ast.parser.nodes = result_nodes
     new_ast.parser.head = get_head(result_nodes)
     new_ast.parser.tail = get_tail(result_nodes)
 
-    # Rebuild links
+    # Rebuild node links
     prev_node = None
     for node in result_nodes.values():
         node.prev = prev_node
@@ -329,5 +393,3 @@ def get_ast_part_by_path(ast: AST, block_id_or_key_path: str, use_hierarchy: boo
 
     # Return the AST part starting from the final current_node
     return _get_ast_part(ast, current_node, use_hierarchy)
-
-
