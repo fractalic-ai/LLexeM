@@ -3,6 +3,8 @@
 
 Program AI in plain language (any language). That's it.
 
+![alt text](<docs/images/fractalic_hero.png>)
+
 ## Vision 🚀
 
 Modern AI workflows shouldn’t be harder than they already are. We have powerful LLMs, yet we still end up wrestling with Python scripts and tangled spaghetti-like node-based editors. **Fractalic** aims to fix this by letting you build AI systems as naturally as writing a simple doc.
