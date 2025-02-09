@@ -43,6 +43,10 @@ operations:
         type: string
         x-process: block-path
         description: "Target block path where content will be placed, supports nested flag"
+      run-once:
+        type: boolean
+        default: false
+        description: "Whether this operation should only run once."
 
   llm:
     description: "Execute LLM model with prompt and handle response"
@@ -99,6 +103,10 @@ operations:
         minimum: 0
         maximum: 1
         description: "Optional temperature setting for LLM call to control randomness"
+      run-once:
+        type: boolean
+        default: false
+        description: "Whether this operation should only run once."
     anyOf:
       - required: ["prompt"]
       - required: ["block"]
@@ -141,6 +149,11 @@ operations:
         type: string
         x-process: block-path
         description: "Target block where execution results will be placed"
+      run-once:
+        type: boolean
+        default: false
+        description: "Whether this operation should only run once."
+
 
   shell:
     description: "Execute shell command and capture output"
@@ -163,6 +176,11 @@ operations:
         type: string
         x-process: block-path
         description: "Target block where command output will be placed"
+      run-once:
+        type: boolean
+        default: false
+        description: "Whether this operation should only run once."
+
 
   return:
     description: "Return content and terminate execution"
@@ -201,6 +219,11 @@ operations:
         type: string
         x-process: block-path-no-nested
         description: "Target block to navigate to (no nested flags allowed)"
+      run-once:
+        type: boolean
+        default: false
+        description: "Whether this operation should only run once."
+
  
 processors:
   path:

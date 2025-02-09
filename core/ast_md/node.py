@@ -36,6 +36,8 @@ class Node:
     key: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
     prev: Optional['Node'] = None
     next: Optional['Node'] = None
+    enabled: bool = True  # Persistent flag for run-once logic
+
 
     @property
     def hash(self) -> str:

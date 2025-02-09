@@ -28,6 +28,12 @@ def get_relative_path(base_dir: str, file_path: str) -> str:
     except ValueError:
         return file_path
 
+def print_ast_state(ast):
+    current_node = ast.first()
+    while current_node:
+        print(f"Node Hash: {current_node.hash}, Type: {current_node.type}, Enabled: {current_node.enabled}")
+        current_node = current_node.next
+
 def run(filename: str, param_node: Optional[Union[Node, AST]] = None, create_new_branch: bool = True,
         p_parent_filename=None, p_parent_operation: str = None, p_call_tree_node=None,
         committed_files=None, file_commit_hashes=None, base_dir=None) -> Tuple[AST, CallTreeNode, str, str, str]:
@@ -151,6 +157,19 @@ def run(filename: str, param_node: Optional[Union[Node, AST]] = None, create_new
         current_node = ast.first()
 
         while current_node:
+            # Print the current AST state
+            print_ast_state(ast)
+
+            # Skip processing if the node is disabled
+            if hasattr(current_node, 'enabled') and current_node.enabled is False:
+                current_node = current_node.next
+                continue
+
+            # If the node's parameters include a run-once flag, disable the node for future runs
+            print(f'[DEBUG runner.py] Current node run_once: {current_node.params.get("run-once") if current_node.params else None}')
+            if current_node.params and current_node.params.get("run-once") is True:
+                current_node.enabled = False
+
             if current_node.type == NodeType.OPERATION:
                 operation_name = f"@{current_node.name}"
                 if operation_name == "@import":
