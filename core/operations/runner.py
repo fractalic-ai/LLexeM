@@ -31,7 +31,10 @@ def get_relative_path(base_dir: str, file_path: str) -> str:
 def print_ast_state(ast):
     current_node = ast.first()
     while current_node:
-        print(f"Node Hash: {current_node.hash}, Type: {current_node.type}, Enabled: {current_node.enabled}")
+        if current_node.type == NodeType.OPERATION:
+            print(f"\nNode Hash: {current_node.hash}, Type: {current_node.type}, Operation: @{current_node.name} {current_node.content}, Enabled: {current_node.enabled}")
+        else:
+            print(f"Node Hash: {current_node.hash}, Type: {current_node.type}, Enabled: {current_node.enabled}")
         current_node = current_node.next
 
 def run(filename: str, param_node: Optional[Union[Node, AST]] = None, create_new_branch: bool = True,
@@ -157,16 +160,20 @@ def run(filename: str, param_node: Optional[Union[Node, AST]] = None, create_new
         current_node = ast.first()
 
         while current_node:
-            # Print the current AST state
-            print_ast_state(ast)
 
             # Skip processing if the node is disabled
             if hasattr(current_node, 'enabled') and current_node.enabled is False:
                 current_node = current_node.next
                 continue
+            
+            # Print the current AST state
+            # print("--------------")
+            # print_ast_state(ast)
+            # print("--------------") 
 
             # If the node's parameters include a run-once flag, disable the node for future runs
-            print(f'[DEBUG runner.py] Current node run_once: {current_node.params.get("run-once") if current_node.params else None}')
+            # print(f'[DEBUG runner.py] Current node run_once: {current_node.params.get("run-once") if current_node.params else None}')
+
             if current_node.params and current_node.params.get("run-once") is True:
                 current_node.enabled = False
 
@@ -226,7 +233,6 @@ def run(filename: str, param_node: Optional[Union[Node, AST]] = None, create_new
         output_file = os.path.join(file_dir, ctx_filename)
         relative_ctx_path = os.path.relpath(output_file, base_dir)
         
-        # Assuming render_ast_to_markdown is a function to render AST to markdown
         render_ast_to_markdown(ast, output_file)
 
         ctx_commit_hash = commit_changes(
@@ -242,6 +248,40 @@ def run(filename: str, param_node: Optional[Union[Node, AST]] = None, create_new
         new_node.ctx_commit_hash = ctx_commit_hash
 
         return ast, new_node, relative_ctx_path, ctx_commit_hash, branch_name
+
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+
+        # Same logic to render .ctx:
+        ctx_filename = Path(local_file_name).with_suffix('.ctx')
+        output_file = os.path.join(file_dir, ctx_filename)
+        render_ast_to_markdown(ast, output_file)
+
+        # Append traceback and exception text to the .ctx file
+        with open(output_file, 'a', encoding='utf-8') as f:
+            f.write("\n# Exception Trace\n")
+            f.write(str(e))
+            f.write("\n```\n")
+            f.write(tb)
+            f.write("```\n")
+
+        # Commit changes without modifying git functions
+        ctx_commit_hash = commit_changes(
+            base_dir,
+            "Exception caught: appended traceback",
+            [local_file_name, ctx_filename],
+            p_parent_filename,
+            p_parent_operation
+        )
+        console.print(f"[bright_red]✓[/bright_red] git. context commited with exception info: [bright_red]{ctx_filename}[/bright_red]")
+
+        # Make sure new_node references updated ctx_file data
+        new_node.ctx_file = get_relative_path(base_dir, output_file)
+        new_node.ctx_commit_hash = ctx_commit_hash
+
+        # Return results back to fractalic
+        return ast, new_node, new_node.ctx_file, ctx_commit_hash, branch_name
 
     finally:
         os.chdir(original_cwd)
