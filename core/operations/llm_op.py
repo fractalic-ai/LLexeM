@@ -97,16 +97,26 @@ def process_llm(ast: AST, current_node: Node) -> Optional[Node]:
     llm_provider = provider if provider else Config.LLM_PROVIDER
     llm_model = model if model else Config.MODEL
     llm_client = LLMClient(provider=llm_provider, model=llm_model)
+    actual_model = model or (getattr(llm_client.client, "settings", {}).get("model"))
 
     start_time = time.time()
     try:
-        with console.status("[cyan] @llm[/cyan] processing...", spinner="dots") as status:
+        with console.status(
+            f"[cyan] @llm [turquoise2]({llm_provider}/{actual_model}"
+            f"{('/' + llm_client.base_url) if hasattr(llm_client, 'base_url') and llm_client.base_url else ''})[/turquoise2]"
+            f"[/cyan] processing...",
+            spinner="dots"
+        ) as status:
             response = llm_client.llm_call(prompt_text, params)
 
         duration = time.time() - start_time
         mins, secs = divmod(int(duration), 60)
         duration_str = f"{mins}m {secs}s" if mins > 0 else f"{secs}s"
-        console.print(f"[light_green]✓[/light_green][cyan] @llm[/cyan] completed ({duration_str})")
+        console.print(
+            f"[light_green]✓[/light_green][cyan] @llm [turquoise2]({llm_provider}/{actual_model}"
+            f"{('/' + llm_client.base_url) if hasattr(llm_client, 'base_url') and llm_client.base_url else ''})[/turquoise2]"
+            f"[/cyan] completed ({duration_str})"
+        )
         
     except Exception as e:
         console.print(f"[bold red]✗ Failed: {str(e)}[/bold red]")

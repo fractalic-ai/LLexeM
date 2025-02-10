@@ -14,7 +14,7 @@ class openaiclient:
         max_tokens = self.settings.get('contextSize', None)
         top_p = self.settings.get('topP', 1)
 
-        print("DEBUG!!!: OPENAI called with model: ", model)
+        # print("DEBUG!!!: OPENAI called with model: ", model)
 
         system_prompt = self.settings.get('systemPrompt', "You are a helpful assistant.")
         response = self.client.chat.completions.create(

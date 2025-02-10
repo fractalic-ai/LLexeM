@@ -142,6 +142,7 @@ class anthropicclient:
             raise
 
     def llm_call(self, prompt_text: str, operation_params: dict = None, model: str = None) -> str:
+        
         model = model or self.settings.get('model', "claude-3-5-sonnet-20241022")
         max_tokens = self.settings.get('contextSize', 8192)
         temperature = operation_params.get('temperature', self.settings.get('temperature', 0.0))
@@ -161,7 +162,7 @@ class anthropicclient:
             "text": prompt_text
         })
 
-        print("DEBUG!!!: ANTHROPIC called with model: ", model)
+        # print("DEBUG!!!: ANTHROPIC called with model: ", model)
 
         # Make API call
         response = self.client.messages.create(
